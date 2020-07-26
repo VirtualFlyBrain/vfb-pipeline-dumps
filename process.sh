@@ -16,7 +16,6 @@ export SPARQL_DIR=$WORKSPACE/sparql
 
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
-ls -l $FINAL_DUMPS_DIR
 rm -rf $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
 mkdir $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
 
