@@ -13,6 +13,7 @@ export OUTDIR=/out
 export RAW_DUMPS_DIR=$OUTDIR/raw
 export FINAL_DUMPS_DIR=$OUTDIR/dumps
 export SPARQL_DIR=$WORKSPACE/sparql
+export SCRIPTS_DIR=$WORKSPACE/scripts
 
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}

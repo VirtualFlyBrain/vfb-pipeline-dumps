@@ -8,10 +8,11 @@ ENV VALIDATE=true
 ENV VALIDATESHEX=true
 ENV VALIDATESHACL=true
 ENV SPARQL_ENDPOINT=http://ts.p2.virtualflybrain.org/rdf4j-server/repositories/vfb
+ENV VFB_CONFIG=https://raw.githubusercontent.com/VirtualFlyBrain/vfb-prod/master/neo4j2owl-config.yaml
 
 ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 
-RUN pip3 install wheel requests psycopg2 pandas base36
+RUN pip3 install wheel requests psycopg2 pandas base36 PyYAML
 
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
@@ -42,6 +43,7 @@ COPY dumps.Makefile $WORKSPACE/Makefile
 RUN chmod +x $WORKSPACE/process.sh
 # COPY vfb*.txt $WORKSPACE/
 COPY /sparql $WORKSPACE/sparql
+COPY /scripts $WORKSPACE/scripts
 # COPY /shacl $WORKSPACE/shacl
 # COPY /shex $WORKSPACE/shex
 # COPY /test.ttl $WORKSPACE/

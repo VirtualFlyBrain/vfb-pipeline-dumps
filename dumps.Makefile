@@ -7,16 +7,25 @@ OUTPUTFILER=| { grep -v 'OWLRDFConsumer\|RDFParserRegistry\|Injector' || true; }
 # Executing this ensures that the necessary environment variables are set.
 checkenv:
 ifndef OUTDIR
-	$(error OUTDIR is undefined)
+	$(error OUTDIR environment variable not set)
 endif
 ifndef RAW_DUMPS_DIR
-	$(error RAW_DUMPS_DIR is undefined)
+	$(error RAW_DUMPS_DIR environment variable not set)
 endif
 ifndef FINAL_DUMPS_DIR
-	$(error FINAL_DUMPS_DIR is undefined)
+	$(error FINAL_DUMPS_DIR environment variable not set)
 endif
 ifndef WORKSPACE
-	$(error WORKSPACE is undefined)
+	$(error WORKSPACE environment variable not set)
+endif
+ifndef SPARQL_DIR
+	$(error SPARQL_DIR environment variable not set)
+endif
+ifndef SCRIPTS_DIR
+	$(error SCRIPTS_DIR environment variable not set)
+endif
+ifndef VFB_CONFIG
+	$(error VFB_CONFIG environment variable not set)
 endif
 
 all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/pdb.ttl $(FINAL_DUMPS_DIR)/solr.json 
@@ -26,9 +35,18 @@ $(RAW_DUMPS_DIR)/%.ttl:
 
 $(FINAL_DUMPS_DIR)/owlery.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
 	$(ROBOT) filter -i $< --axioms "logical" -o $@ $(OUTPUTFILER)
-	
-$(FINAL_DUMPS_DIR)/solr.json: $(RAW_DUMPS_DIR)/dump_all.ttl
+
+$(RAW_DUMPS_DIR)/dump_all.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
+	$(ROBOT) merge -i $< annotate --ontology-iri "https://virtualflybrain.org/test" convert -f owl -o $@ $(OUTPUTFILER)
+
+$(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl
 	$(ROBOT) convert -i $< -f json -o $@ $(OUTPUTFILER)
+
+$(RAW_DUMPS_DIR)/vfb-config.yaml:
+	wget $(VFB_CONFIG) -O $@
+
+$(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)/vfb-config.yaml
+	python3 $(SCRIPTS_DIR)/obographs-solr.py $^ $@
 
 $(FINAL_DUMPS_DIR)/pdb.ttl: $(RAW_DUMPS_DIR)/dump_all.ttl
 	$(ROBOT) merge -i $< -o $@ $(OUTPUTFILER)
