@@ -34,10 +34,10 @@ $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/$*.sparql`" $(SPARQL_ENDPOINT) -o $@
 
 $(FINAL_DUMPS_DIR)/owlery.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
-	$(ROBOT) filter -i $< --axioms "logical" -o $@ $(OUTPUTFILER)
+	$(ROBOT) filter -i $< --axioms "logical"  annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(OUTPUTFILER)
 
 $(RAW_DUMPS_DIR)/dump_all.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
-	$(ROBOT) merge -i $< annotate --ontology-iri "https://virtualflybrain.org/test" convert -f owl -o $@ $(OUTPUTFILER)
+	$(ROBOT) merge -i $< annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/dump_all.owl" convert -f owl -o $@ $(OUTPUTFILER)
 
 $(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl
 	$(ROBOT) convert -i $< -f json -o $@ $(OUTPUTFILER)
