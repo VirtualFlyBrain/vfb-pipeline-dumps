@@ -22,7 +22,7 @@ def load_json(obographs_file):
 
 def save_json(solr, solr_out_file):
     with open(solr_out_file, 'w') as outfile:
-        outfile.write(json.dumps(solr[:100], indent=4, sort_keys=True))
+        outfile.write(json.dumps(solr, indent=4, sort_keys=True))
 
 
 def parse_curie_map(curie_map_file):
