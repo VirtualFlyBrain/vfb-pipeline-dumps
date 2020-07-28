@@ -35,14 +35,13 @@ all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/pdb.ttl $(FINAL_D
 $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/$*.sparql`" $(SPARQL_ENDPOINT) -o $@
 
-$(FINAL_DUMPS_DIR)/owlery.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
-	$(ROBOT) filter -i $< --axioms "logical"  annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
-
 $(RAW_DUMPS_DIR)/dump_all.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
-	$(ROBOT) merge -i $< annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/dump_all.owl" convert -f owl -o $@ $(STDOUT_FILTER)
-
-$(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl
-	$(ROBOT) convert -i $< -f json -o $@ $(STDOUT_FILTER)
+	$(ROBOT) merge -i $< \
+		reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --annotate-inferred-axioms true --exclude-tautologies structural \
+		relax \
+		reduce --reasoner ELK --named-classes-only true \
+		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/dump_all.owl" \
+		convert -f owl -o $@ $(STDOUT_FILTER)
 
 $(RAW_DUMPS_DIR)/vfb-config.yaml:
 	wget $(VFB_CONFIG) -O $@
@@ -50,5 +49,15 @@ $(RAW_DUMPS_DIR)/vfb-config.yaml:
 $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)/vfb-config.yaml
 	python3 $(SCRIPTS_DIR)/obographs-solr.py $^ $@
 
-$(FINAL_DUMPS_DIR)/pdb.ttl: $(RAW_DUMPS_DIR)/dump_all.ttl
+$(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl
+	$(ROBOT) convert -i $< -f json -o $@ $(STDOUT_FILTER)
+
+$(FINAL_DUMPS_DIR)/pdb.ttl: $(RAW_DUMPS_DIR)/dump_all.owl
+	$(ROBOT) merge -i $< \
+		convert -f ttl -o $@ $(STDOUT_FILTER)
+	
+$(FINAL_DUMPS_DIR)/pdb.owl: $(RAW_DUMPS_DIR)/dump_all.owl
 	$(ROBOT) merge -i $< -o $@ $(STDOUT_FILTER)
+
+$(FINAL_DUMPS_DIR)/owlery.owl: $(RAW_DUMPS_DIR)/dump_all.owl
+	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
