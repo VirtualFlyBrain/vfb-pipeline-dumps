@@ -11,8 +11,6 @@ ENV SPARQL_ENDPOINT=http://ts.p2.virtualflybrain.org/rdf4j-server/repositories/v
 ENV VFB_CONFIG=http://virtualflybrain.org/config/neo4j2owl-config.yaml
 
 # This is appended to all ROBOT commands. It basically filters out all lines in stdout that match the grep.
-ENV STDOUT_FILTER=| { grep -v 'OWLRDFConsumer\|RDFParserRegistry' || true; }
-
 
 ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 
@@ -42,6 +40,7 @@ RUN wget $SHACL_ZIP -O $WORKSPACE/shacl.zip && \
     rm $WORKSPACE/shacl.zip && chmod +x $WORKSPACE/shacl/bin/shaclvalidate.sh && chmod +x $WORKSPACE/shacl/bin/shaclinfer.sh
 
 ###### Copy pipeline files ########
+ENV STDOUT_FILTER=\|\ \{\ grep\ -v\ \'OWLRDFConsumer\\\|RDFParserRegistry\'\ \|\|\ true\;\ \}
 COPY process.sh $WORKSPACE/process.sh
 COPY dumps.Makefile $WORKSPACE/Makefile
 RUN chmod +x $WORKSPACE/process.sh
