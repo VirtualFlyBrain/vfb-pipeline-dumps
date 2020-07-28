@@ -4,7 +4,7 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
 CONSTRUCT {
 	?x a owl:Class .
-	?x rdfs:equivalentClass ?y .
+	?x owl:equivalentClass ?y .
 	?x rdfs:label ?l .
 	?x rdfs:comment ?c .
 	?y rdfs:label ?l2 .
@@ -12,7 +12,7 @@ CONSTRUCT {
 
 WHERE {
 	?x a owl:Class .
-	?x owl:equivalentClass ?y .
+	?x rdfs:subClassOf ?y .
 	?x rdfs:label ?l .
 	?x rdfs:comment ?c .
 	?y rdfs:label ?l2 .
@@ -20,4 +20,4 @@ WHERE {
 	FILTER(isIRI(?y)) 	
 }
 
-LIMIT 200
+LIMIT 10000
