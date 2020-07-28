@@ -37,7 +37,7 @@ $(RAW_DUMPS_DIR)/%.ttl:
 
 $(RAW_DUMPS_DIR)/dump_all.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
 	$(ROBOT) merge -i $< \
-		reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --annotate-inferred-axioms true --exclude-tautologies structural \
+		reason --reasoner ELK --axiom-generators "SubClass ClassAssertion" --annotate-inferred-axioms true --exclude-tautologies structural \
 		relax \
 		reduce --reasoner ELK --named-classes-only true \
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/dump_all.owl" \
