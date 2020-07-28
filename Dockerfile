@@ -10,6 +10,10 @@ ENV VALIDATESHACL=true
 ENV SPARQL_ENDPOINT=http://ts.p2.virtualflybrain.org/rdf4j-server/repositories/vfb
 ENV VFB_CONFIG=http://virtualflybrain.org/config/neo4j2owl-config.yaml
 
+# This is appended to all ROBOT commands. It basically filters out all lines in stdout that match the grep.
+ENV STDOUT_FILTER=| { grep -v 'OWLRDFConsumer\|RDFParserRegistry' || true; }
+
+
 ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 
 RUN pip3 install wheel requests psycopg2 pandas base36 PyYAML
