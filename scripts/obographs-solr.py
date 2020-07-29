@@ -28,7 +28,8 @@ def save_json(solr, solr_out_file):
 def parse_curie_map(curie_map_file):
     with open(curie_map_file, 'r') as stream:
         config = yaml.safe_load(stream)
-    return config['curie_map']
+    x = config['curie_map']
+    return {k: v for k, v in sorted(x.items(), key=lambda item: item[1], reverse=True)}
 
 
 def get_id_variants(id, curie_map):
