@@ -55,9 +55,9 @@ $(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl
 $(FINAL_DUMPS_DIR)/pdb.ttl: $(RAW_DUMPS_DIR)/dump_all.owl
 	$(ROBOT) merge -i $< \
 		convert -f ttl -o $@ $(STDOUT_FILTER)
-	
-$(FINAL_DUMPS_DIR)/pdb.owl: $(RAW_DUMPS_DIR)/dump_all.owl
-	$(ROBOT) merge -i $< -o $@ $(STDOUT_FILTER)
+
+$(FINAL_DUMPS_DIR)/pdb.owl: $(RAW_DUMPS_DIR)/dump_all.owl $(RAW_DUMPS_DIR)/dump_preferred_roots.ttl
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
 $(FINAL_DUMPS_DIR)/owlery.owl: $(RAW_DUMPS_DIR)/dump_all.owl
 	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)

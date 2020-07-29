@@ -40,7 +40,7 @@ RUN wget $SHACL_ZIP -O $WORKSPACE/shacl.zip && \
     rm $WORKSPACE/shacl.zip && chmod +x $WORKSPACE/shacl/bin/shaclvalidate.sh && chmod +x $WORKSPACE/shacl/bin/shaclinfer.sh
 
 ###### Copy pipeline files ########
-ENV STDOUT_FILTER=\|\ \{\ grep\ -v\ \'OWLRDFConsumer\\\|RDFParserRegistry\'\ \|\|\ true\;\ \}
+ENV STDOUT_FILTER=\|\ \{\ grep\ -v\ \'OWLRDFConsumer\\\|InvalidReferenceViolation\\\|RDFParserRegistry\'\ \|\|\ true\;\ \}
 COPY process.sh $WORKSPACE/process.sh
 COPY dumps.Makefile $WORKSPACE/Makefile
 RUN chmod +x $WORKSPACE/process.sh
