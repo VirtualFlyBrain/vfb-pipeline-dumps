@@ -29,6 +29,9 @@ endif
 ifndef STDOUT_FILTER
 $(error STDOUT_FILTER environment variable not set)
 endif
+ifndef INFER_ANNOTATE_RELATION
+$(error INFER_ANNOTATE_RELATION environment variable not set)
+endif
 
 all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/pdb.ttl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl
 
@@ -43,20 +46,23 @@ $(RAW_DUMPS_DIR)/dump_all.owl: $(RAW_DUMPS_DIR)/dump_all.ttl
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/dump_all.owl" \
 		convert -f owl -o $@ $(STDOUT_FILTER)
 
+$(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml
+	java -jar $ $(SCRIPTS_DIR)/infer-annotate.jar $^ $(INFER_ANNOTATE_RELATION) $@
+
 $(RAW_DUMPS_DIR)/vfb-config.yaml:
 	wget $(VFB_CONFIG) -O $@
 
 $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)/vfb-config.yaml
 	python3 $(SCRIPTS_DIR)/obographs-solr.py $^ $@
 
-$(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl
-	$(ROBOT) convert -i $< -f json -o $@ $(STDOUT_FILTER)
+$(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl $(RAW_DUMPS_DIR)/dump_preferred_roots.ttl
+	$(ROBOT) merge $(patsubst %, -i %, $^) convert -f json -o $@ $(STDOUT_FILTER)
 
 $(FINAL_DUMPS_DIR)/pdb.ttl: $(RAW_DUMPS_DIR)/dump_all.owl
 	$(ROBOT) merge -i $< \
 		convert -f ttl -o $@ $(STDOUT_FILTER)
 
-$(FINAL_DUMPS_DIR)/pdb.owl: $(RAW_DUMPS_DIR)/dump_all.owl $(RAW_DUMPS_DIR)/dump_preferred_roots.ttl
+$(FINAL_DUMPS_DIR)/pdb.owl: $(RAW_DUMPS_DIR)/dump_all.owl $(RAW_DUMPS_DIR)/dump_preferred_roots.ttl $(RAW_DUMPS_DIR)/inferred_annotation.owl
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
 $(FINAL_DUMPS_DIR)/owlery.owl: $(RAW_DUMPS_DIR)/dump_all.owl
