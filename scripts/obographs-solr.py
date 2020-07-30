@@ -9,8 +9,11 @@ This script translates the obographs json format to the native VFB solr format.
 import json
 import yaml
 import sys
+import re
 
 n2o_nodelabel_iri = "http://n2o.neo/property/nodeLabel"
+n2o_filename_iri = "http://n2o.neo/custom/filename"
+n2o_thumbnail_iri = "http://n2o.neo/custom/thumbnail"
 obo_iri = "http://purl.obolibrary.org/obo/"
 
 def load_json(obographs_file):
@@ -55,31 +58,39 @@ def get_id_variants(id, curie_map):
     return id_meta
 
 
+def get_string_derivatives(label):
+    label_alpha = re.sub('[^0-9a-zA-Z ]+', ' ', label)
+    label_alpha = re.sub('\s+', ' ', label_alpha)
+    label_split_numerics_alpha = re.sub('(?<=\d)(?!\d)|(?<!\d)(?=\d)', ' ', label_alpha)
+    label_split_numerics_alpha = re.sub('\s+', ' ', label_split_numerics_alpha)
+    #label_split_numerics = re.sub('(?<=\d)(?!\d)|(?<!\d)(?=\d)', ' ', label)
+    #label_split_numerics = re.sub('\s+', ' ', label_split_numerics)
+    return [label_alpha.strip(), label_split_numerics_alpha.strip()]
+
+
 def obographs2solr(obo, curie_map):
     solr = []
     for g in obo['graphs']:
         for e in g["nodes"]:
             se = dict()
-            #print(e['id'])
             id = e["id"]
             id_meta = get_id_variants(id,curie_map)
+
             se["id"] = id
             se["iri"] = id
             se["short_form"] = id_meta['short_form']
             se["obo_id"] = id_meta['obo_id']
-            se["obo_id_autosuggest"] = []  # "FBbt_00007239", "FBbt:00007239"
+
+            se["obo_id_autosuggest"] = []
             se["obo_id_autosuggest"].append(id_meta['obo_id'])
             se["obo_id_autosuggest"].append(id_meta['short_form'])
 
-            se["shortform_autosuggest"] = []  # "Court2017", "Court2017", "Court 2017"
-            se["shortform_autosuggest"].append(id_meta['short_form'])
-            # regex rule for tokenising split string from numeric ->
-            # @dosumis: in Perl you can specify any boundaries like that.
-            # That would make sense. @Robbie1977 should be in the indexer in the separate thing;
-            # check whether custom tokenisation is better or create the tokens manually and push them in the fields.
-            # Check what OLS does (@Robbie1977 to share schema)
+            se["shortform_autosuggest"] = []
+            se["shortform_autosuggest"].extend(se["obo_id_autosuggest"])
 
             se["label_autosuggest"] = []
+
+
             if 'lbl' in e:
                 se["label"] = e["lbl"]
                 se["label_autosuggest"].append(e["lbl"])
@@ -87,24 +98,61 @@ def obographs2solr(obo, curie_map):
                 se["label"] = ""  # Should this be done?
 
             se["synonym"] = []
+            se["synonym"].append(se["label"])
             se["synonym_autosuggest"] = []
-            if 'synonyms' in e:
-                for syn in e['synonyms']:
-                    se["synonym"].append(syn['val'])
-                    se["synonym_autosuggest"].append(syn['val'])
+            se["synonym_autosuggest"].extend(se["label_autosuggest"])
 
-            se["facets_annotation"] = []  # "Individual", "DataSet", "Entity"
+            se["facets_annotation"] = []
+            se["filename"] = []
+            se["thumbnail"] = []
+
+            if 'type' in e:
+                entity_type = e['type'].capitalize()
+                se["facets_annotation"].append(entity_type)
+
             if 'meta' in e:
                 if 'basicPropertyValues' in e['meta']:
                     for annotation in e['meta']['basicPropertyValues']:
                         if annotation['pred']==n2o_nodelabel_iri:
                             se["facets_annotation"].append(annotation['val'])
+                        if annotation['pred']==n2o_filename_iri:
+                            se["filename"].append(annotation['val'])
+                        if annotation['pred']==n2o_thumbnail_iri:
+                            se["thumbnail"].append(annotation['val'])
+                if 'synonyms' in e['meta']:
+                    for syn in e['meta']['synonyms']:
+                        se["synonym"].append(syn['val'])
+                        se["synonym_autosuggest"].append(syn['val'])
+
+                        syntype = syn['pred']
+                        if 'synonym_'+syntype not in se:
+                            se['synonym_'+syntype] = []
+                            se['synonym_autosuggest_' + syntype] = []
+                        se['synonym_'+syntype].append(syn['val'])
+                        se['synonym_autosuggest_' + syntype].append(syn['val'])
+
+                        if 'xrefs' in syn:
+                            se["synonym"].extend(syn['xrefs'])
+                            se["synonym_autosuggest"].extend(syn['xrefs'])
+
+                if 'definition' in e['meta']:
+                    se['definition'] = e['meta']['definition']['val']
+                    se['definition'] = (se['definition'][:98] + '..') if len(se['definition']) > 100 else se['definition']
+
+            for key in se:
+                if isinstance(se[key], list) and ('autosuggest' in key):
+                    derivatives = []
+                    for l in se[key]:
+                        derivatives.extend(get_string_derivatives(l))
+                    se[key].extend(derivatives)
+                se[key] = list(set(se[key])) if isinstance(se[key], list) else se[key]
+
             solr.append(se)
     return solr
 
-# obographs_file = "/Users/matentzn/pipeline/vfb-pipeline-dumps/solr.json"
-# solr_out_file = "/Users/matentzn/pipeline/vfb-pipeline-dumps/solr_out.json"
-# curie_map_file = "/Users/matentzn/pipeline/vfb-prod/neo4j2owl-config.yaml"
+#obographs_file = "/Users/matentzn/pipeline/vfb-pipeline-dumps/test/obographs.json"
+#solr_out_file = "/Users/matentzn/pipeline/vfb-pipeline-dumps/test/solr.json"
+#curie_map_file = "/Users/matentzn/pipeline/vfb-prod/neo4j2owl-config.yaml"
 
 obographs_file = sys.argv[1]
 curie_map_file = sys.argv[2]

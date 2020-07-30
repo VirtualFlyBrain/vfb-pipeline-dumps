@@ -55,7 +55,7 @@ $(RAW_DUMPS_DIR)/vfb-config.yaml:
 $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)/vfb-config.yaml
 	python3 $(SCRIPTS_DIR)/obographs-solr.py $^ $@
 
-$(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl $(RAW_DUMPS_DIR)/dump_preferred_roots.ttl $(RAW_DUMPS_DIR)/inferred_annotation.owl
+$(FINAL_DUMPS_DIR)/obographs.json: $(RAW_DUMPS_DIR)/dump_all.owl $(RAW_DUMPS_DIR)/dump_preferred_roots.ttl $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/image_names.ttl
 	$(ROBOT) merge $(patsubst %, -i %, $^) convert -f json -o $@ $(STDOUT_FILTER)
 
 $(FINAL_DUMPS_DIR)/pdb.ttl: $(RAW_DUMPS_DIR)/dump_all.owl
