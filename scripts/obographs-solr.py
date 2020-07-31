@@ -62,10 +62,12 @@ def get_string_derivatives(label):
     label_alpha = re.sub('[^0-9a-zA-Z ]+', ' ', label)
     label_alpha = re.sub('\s+', ' ', label_alpha)
     label_split_numerics_alpha = re.sub('(?<=\d)(?!\d)|(?<!\d)(?=\d)', ' ', label_alpha)
+    label_split_numerics_alpha_camel = re.sub("([a-z])([A-Z])","\g<1> \g<2>",label_split_numerics_alpha)
     label_split_numerics_alpha = re.sub('\s+', ' ', label_split_numerics_alpha)
+    label_split_numerics_alpha_camel = re.sub('\s+', ' ', label_split_numerics_alpha_camel)
     #label_split_numerics = re.sub('(?<=\d)(?!\d)|(?<!\d)(?=\d)', ' ', label)
     #label_split_numerics = re.sub('\s+', ' ', label_split_numerics)
-    return [label_alpha.strip(), label_split_numerics_alpha.strip()]
+    return [label_alpha.strip(), label_split_numerics_alpha.strip(),label_split_numerics_alpha_camel.strip()]
 
 
 def obographs2solr(obo, curie_map):
@@ -127,9 +129,9 @@ def obographs2solr(obo, curie_map):
                         syntype = syn['pred']
                         if 'synonym_'+syntype not in se:
                             se['synonym_'+syntype] = []
-                            se['synonym_autosuggest_' + syntype] = []
+                            se['synonym_' + syntype+'_autosuggest'] = []
                         se['synonym_'+syntype].append(syn['val'])
-                        se['synonym_autosuggest_' + syntype].append(syn['val'])
+                        se['synonym_' + syntype+'_autosuggest'].append(syn['val'])
 
                         if 'xrefs' in syn:
                             se["synonym"].extend(syn['xrefs'])
