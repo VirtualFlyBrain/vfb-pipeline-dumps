@@ -28,11 +28,21 @@ def save_json(solr, solr_out_file):
         outfile.write(json.dumps(solr, indent=4, sort_keys=True))
 
 
-def parse_curie_map(curie_map_file):
+def parse_config(curie_map_file):
     with open(curie_map_file, 'r') as stream:
         config = yaml.safe_load(stream)
     x = config['curie_map']
-    return {k: v for k, v in sorted(x.items(), key=lambda item: item[1], reverse=True)}
+    config_out = dict()
+    config_out['curie_map'] = {k: v for k, v in sorted(x.items(), key=lambda item: item[1], reverse=True)}
+    filters = dict()
+    if 'filters' in config:
+        if 'solr' in config['filters']:
+            if 'exclusion' in config['filters']['solr']:
+                filters['exclusion']=config['filters']['solr']['exclusion']
+            if 'inclusion' in config['filters']['solr']:
+                filters['inclusion']=config['filters']['solr']['inclusion']
+    config_out['filters'] = filters
+    return config_out
 
 
 def get_id_variants(id, curie_map):
@@ -70,7 +80,19 @@ def get_string_derivatives(label):
     return [label_alpha.strip(), label_split_numerics_alpha.strip(),label_split_numerics_alpha_camel.strip()]
 
 
-def obographs2solr(obo, curie_map):
+def filterOut(e,filters):
+    if 'iri_prefix' in filters['exclusion']:
+        for iri in filters['exclusion']['iri_prefix']:
+            if iri in e['iri']:
+                return True
+    if 'neo4j_node_label' in filters['exclusion']:
+        for neo4j_label in filters['exclusion']['neo4j_node_label']:
+            if neo4j_label in e['facets_annotation']:
+                return True
+    return False
+
+
+def obographs2solr(obo, curie_map, filters):
     solr = []
     for g in obo['graphs']:
         for e in g["nodes"]:
@@ -148,19 +170,21 @@ def obographs2solr(obo, curie_map):
                         derivatives.extend(get_string_derivatives(l))
                     se[key].extend(derivatives)
                 se[key] = list(set(se[key])) if isinstance(se[key], list) else se[key]
-
-            solr.append(se)
+            if not filterOut(se, filters):
+                solr.append(se)
     return solr
 
-#obographs_file = "/Users/matentzn/pipeline/vfb-pipeline-dumps/test/obographs.json"
-#solr_out_file = "/Users/matentzn/pipeline/vfb-pipeline-dumps/test/solr.json"
-#curie_map_file = "/Users/matentzn/pipeline/vfb-prod/neo4j2owl-config.yaml"
+#obographs_file = "/Users/matentzn/vfb/vfb-pipeline-dumps/test/obographs.json"
+#solr_out_file = "/Users/matentzn/vfb/vfb-pipeline-dumps/test/solr.json"
+#curie_map_file = "/Users/matentzn/vfb/vfb-prod/neo4j2owl-config.yaml"
 
 obographs_file = sys.argv[1]
 curie_map_file = sys.argv[2]
 solr_out_file = sys.argv[3]
 
 obo = load_json(obographs_file)
-curie_map = parse_curie_map(curie_map_file)
-solr = obographs2solr(obo,curie_map)
+config = parse_config(curie_map_file)
+curie_map = config['curie_map']
+filters = config['filters']
+solr = obographs2solr(obo,curie_map,filters)
 save_json(solr, solr_out_file)
