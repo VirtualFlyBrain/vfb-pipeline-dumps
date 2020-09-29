@@ -3,4 +3,5 @@ CONSTRUCT {
 }
 WHERE {
   ?x <http://www.w3.org/2002/07/owl#deprecated> true .
+	FILTER(isIRI(?x)) 
 }
