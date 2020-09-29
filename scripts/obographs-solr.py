@@ -155,9 +155,10 @@ def obographs2solr(obo, curie_map, filters):
                         se['synonym_'+syntype].append(syn['val'])
                         se['synonym_' + syntype+'_autosuggest'].append(syn['val'])
 
-                        if 'xrefs' in syn:
-                            se["synonym"].extend(syn['xrefs'])
-                            se["synonym_autosuggest"].extend(syn['xrefs'])
+                        # Removed as discussed https://github.com/VirtualFlyBrain/vfb-pipeline-dumps/issues/9
+                        #if 'xrefs' in syn:
+                        #    se["synonym"].extend(syn['xrefs'])
+                        #    se["synonym_autosuggest"].extend(syn['xrefs'])
 
                 if 'definition' in e['meta']:
                     se['definition'] = e['meta']['definition']['val']
