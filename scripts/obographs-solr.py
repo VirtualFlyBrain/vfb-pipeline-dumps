@@ -52,7 +52,7 @@ def get_id_variants(id, curie_map):
         if id.startswith(prefix_url):
             short_form = id.replace(prefix_url,'')
             id_meta['obo_id'] = pre+":"+short_form
-            if short_form.isnumeric(): # Discuss
+            if prefix_url.endswith(pre+"_"):
                 id_meta['short_form'] = pre+"_"+short_form
             else:
                 id_meta['short_form'] = short_form
