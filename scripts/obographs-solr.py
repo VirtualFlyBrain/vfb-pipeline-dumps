@@ -26,6 +26,7 @@ def load_json(obographs_file):
 def save_json(solr, solr_out_file):
     with open(solr_out_file, 'w') as outfile:
         outfile.write(json.dumps(solr, indent=4, sort_keys=True))
+    print(f"{solr_out_file} saved")
 
 
 def parse_config(curie_map_file):
@@ -47,15 +48,26 @@ def parse_config(curie_map_file):
 
 def get_id_variants(id, curie_map):
     id_meta = dict()
-    for pre in curie_map:
-        prefix_url = curie_map[pre]
+    sorted_prefixes = list(curie_map.keys())
+    sorted_prefixes.sort(reverse=True)
+    # print("---------")
+    for prefix_url in sorted_prefixes:
+        # print(prefix_url)
+        pre = curie_map_rev[prefix_url]
         if id.startswith(prefix_url):
             short_form = id.replace(prefix_url,'')
+            # Strip away all non-alphanumeric characters; this is important as Gepetto
+            # uses the assumptions that shortforms can be used as java variables
+            short_form = re.sub('[^0-9a-zA-Z_]+', '_', short_form)
             id_meta['obo_id'] = pre+":"+short_form
-            if prefix_url.endswith(pre+"_"):
+
+            # If the iri prefix ends with an _, that suggests that the IRI is obo style
+            # If the short form starts with a number, this suggests id style, like DOI or ORCID
+            if prefix_url.endswith(pre+"_") or short_form[0].isdigit():
                 id_meta['short_form'] = pre+"_"+short_form
             else:
                 id_meta['short_form'] = short_form
+            break
     if 'short_form' not in id_meta:
         if id.startswith(obo_iri):
             short_form = id.replace(obo_iri, '')
@@ -63,8 +75,9 @@ def get_id_variants(id, curie_map):
             id_meta['short_form'] = short_form
         else:
             print("WARNING: ID "+id+" does not have a prefixable IRI")
-            id_meta['obo_id'] = id
-            id_meta['short_form'] = id
+            short_form = re.sub('[^0-9a-zA-Z_]+', '_', id)
+            id_meta['obo_id'] = pre+":"+short_form
+            id_meta['short_form'] = short_form
     return id_meta
 
 
@@ -98,7 +111,7 @@ def obographs2solr(obo, curie_map, filters):
         for e in g["nodes"]:
             se = dict()
             id = e["id"]
-            id_meta = get_id_variants(id,curie_map)
+            id_meta = get_id_variants(id, curie_map)
 
             se["id"] = id
             se["iri"] = id
@@ -186,6 +199,7 @@ solr_out_file = sys.argv[3]
 obo = load_json(obographs_file)
 config = parse_config(curie_map_file)
 curie_map = config['curie_map']
+curie_map_rev = {v: k for k, v in curie_map.items()}
 filters = config['filters']
-solr = obographs2solr(obo,curie_map,filters)
+solr = obographs2solr(obo, curie_map_rev, filters)
 save_json(solr, solr_out_file)
