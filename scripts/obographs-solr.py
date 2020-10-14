@@ -6,27 +6,16 @@ Created on July 26, 2020
 This script translates the obographs json format to the native VFB solr format.
 """
 
-import json
-import yaml
 import sys
+import yaml
 import re
+from lib import get_id_variants, load_json, save_json
 
 n2o_nodelabel_iri = "http://n2o.neo/property/nodeLabel"
 n2o_filename_iri = "http://n2o.neo/custom/filename"
 n2o_thumbnail_iri = "http://n2o.neo/custom/thumbnail"
 obo_iri = "http://purl.obolibrary.org/obo/"
 
-def load_json(obographs_file):
-    with open(obographs_file) as json_file:
-        data: dict = json.load(json_file)
-    return data
-    # print(data)
-
-
-def save_json(solr, solr_out_file):
-    with open(solr_out_file, 'w') as outfile:
-        outfile.write(json.dumps(solr, indent=4, sort_keys=True))
-    print(f"{solr_out_file} saved")
 
 
 def parse_config(curie_map_file):
@@ -46,41 +35,6 @@ def parse_config(curie_map_file):
     return config_out
 
 
-def get_id_variants(id, curie_map):
-    id_meta = dict()
-    sorted_prefixes = list(curie_map.keys())
-    sorted_prefixes.sort(reverse=True)
-    # print("---------")
-    for prefix_url in sorted_prefixes:
-        # print(prefix_url)
-        pre = curie_map_rev[prefix_url]
-        if id.startswith(prefix_url):
-            short_form = id.replace(prefix_url,'')
-            # Strip away all non-alphanumeric characters; this is important as Gepetto
-            # uses the assumptions that shortforms can be used as java variables
-            short_form = re.sub('[^0-9a-zA-Z_]+', '_', short_form)
-            id_meta['obo_id'] = pre+":"+short_form
-
-            # If the iri prefix ends with an _, that suggests that the IRI is obo style
-            # If the short form starts with a number, this suggests id style, like DOI or ORCID
-            if prefix_url.endswith(pre+"_") or short_form[0].isdigit():
-                id_meta['short_form'] = pre+"_"+short_form
-            else:
-                id_meta['short_form'] = short_form
-            break
-    if 'short_form' not in id_meta:
-        if id.startswith(obo_iri):
-            short_form = id.replace(obo_iri, '')
-            id_meta['obo_id'] = short_form.replace("_",":")
-            id_meta['short_form'] = short_form
-        else:
-            print("WARNING: ID "+id+" does not have a prefixable IRI")
-            short_form = re.sub('[^0-9a-zA-Z_]+', '_', id)
-            id_meta['obo_id'] = pre+":"+short_form
-            id_meta['short_form'] = short_form
-    return id_meta
-
-
 def get_string_derivatives(label):
     label_alpha = re.sub('[^0-9a-zA-Z ]+', ' ', label)
     label_alpha = re.sub('\s+', ' ', label_alpha)
@@ -93,7 +47,7 @@ def get_string_derivatives(label):
     return [label_alpha.strip(), label_split_numerics_alpha.strip(),label_split_numerics_alpha_camel.strip()]
 
 
-def filterOut(e,filters):
+def filter_out_solr(e, filters):
     if 'iri_prefix' in filters['exclusion']:
         for iri in filters['exclusion']['iri_prefix']:
             if iri in e['iri']:
@@ -184,13 +138,13 @@ def obographs2solr(obo, curie_map, filters):
                         derivatives.extend(get_string_derivatives(l))
                     se[key].extend(derivatives)
                 se[key] = list(set(se[key])) if isinstance(se[key], list) else se[key]
-            if not filterOut(se, filters):
+            if not filter_out_solr(se, filters):
                 solr.append(se)
     return solr
 
-#obographs_file = "/Users/matentzn/vfb/vfb-pipeline-dumps/test/obographs.json"
-#solr_out_file = "/Users/matentzn/vfb/vfb-pipeline-dumps/test/solr.json"
-#curie_map_file = "/Users/matentzn/vfb/vfb-prod/neo4j2owl-config.yaml"
+# obographs_file = "/Users/matentzn/vfb/vfb-pipeline-dumps/test/obographs.json"
+# solr_out_file = "/Users/matentzn/vfb/vfb-pipeline-dumps/test/solr.json"
+# curie_map_file = "/Users/matentzn/vfb/vfb-prod/neo4j2owl-config.yaml"
 
 obographs_file = sys.argv[1]
 curie_map_file = sys.argv[2]
