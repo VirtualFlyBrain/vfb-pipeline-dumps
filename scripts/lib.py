@@ -9,7 +9,6 @@ import re
 import json
 
 obo_iri = "http://purl.obolibrary.org/obo/"
-ns_id_next = 0
 
 def load_json(obographs_file):
     with open(obographs_file) as json_file:
@@ -25,7 +24,6 @@ def save_json(solr, solr_out_file):
 
 
 def get_id_variants(iri, curie_map):
-    global ns_id_next
     id_meta = dict()
     sorted_prefixes = list(curie_map.keys())
     sorted_prefixes.sort(reverse=True)
@@ -55,8 +53,6 @@ def get_id_variants(iri, curie_map):
         else:
             print("WARNING: ID "+iri+" does not have a prefixable IRI")
             short_form = re.sub('[^0-9a-zA-Z_]+', '_', iri)
-            pre = f"ns{ns_id_next}"
-            ns_id_next = ns_id_next + 1
-            id_meta['obo_id'] = pre+":"+short_form
+            id_meta['obo_id'] = "NONAMESPACE:"+short_form
             id_meta['short_form'] = short_form
     return id_meta
