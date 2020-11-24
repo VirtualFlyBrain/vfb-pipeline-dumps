@@ -65,7 +65,7 @@ $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)
 # 2. create new sparql query in sparql/, naming it 'construct_name.sparql', e.g. sparql/construct_image_names.sparql
 # Note that non-sparql goals, like 'inferred_annotation', need to be added separately
 DUMPS_SOLR=all preferred_roots deprecation_label image_names
-DUMPS_PDB=all preferred_roots deprecation_label
+DUMPS_PDB=all preferred_roots deprecation_label connectivity_label
 DUMPS_OWLERY=all
 
 $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/inferred_annotation.owl
