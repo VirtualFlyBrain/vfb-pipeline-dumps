@@ -33,7 +33,7 @@ ifndef INFER_ANNOTATE_RELATION
 $(error INFER_ANNOTATE_RELATION environment variable not set)
 endif
 
-all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl
+all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs
 
 $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
@@ -67,6 +67,11 @@ $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)
 DUMPS_SOLR=all preferred_roots deprecation_label image_names
 DUMPS_PDB=all preferred_roots deprecation_label
 DUMPS_OWLERY=all
+CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
+OWL2NEOCSV="$(SCRIPTS_DIR)/owl2neo4jcsv.jar"
+
+$(CSV_IMPORTS):
+	mkdir -p $@
 
 $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/inferred_annotation.owl
 	$(ROBOT) merge $(patsubst %, -i %, $^) convert -f json -o $@ $(STDOUT_FILTER)
@@ -76,3 +81,6 @@ $(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DU
 
 $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY))
 	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
+
+pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
+	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< $(VFB_CONFIG) $(CSV_IMPORTS)
