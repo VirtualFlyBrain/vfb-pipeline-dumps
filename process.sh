@@ -17,8 +17,9 @@ export SCRIPTS_DIR=$WORKSPACE/scripts
 
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
-rm -rf $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
-mkdir $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
+find $FINAL_DUMPS_DIR -type f -delete
+find $RAW_DUMPS_DIR -type f -delete
+mkdir -p $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
 
 echo "VFBTIME:"
 date
