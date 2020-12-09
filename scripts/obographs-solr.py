@@ -81,14 +81,18 @@ def obographs2solr(obo, curie_map, filters):
 
             se["label_autosuggest"] = []
 
+            se["synonym"] = []
 
             if 'lbl' in e:
                 se["label"] = e["lbl"]
                 se["label_autosuggest"].append(e["lbl"])
+                if "\\'" in e["lbl"]:
+                    se["synonym"].append(e["lbl"])
+                    se["label"] = e["lbl"].replace("\\'","'")
+                    se["label_autosuggest"].append(e["lbl"].replace("\\'","'"))
             else:
                 se["label"] = ""  # Should this be done?
 
-            se["synonym"] = []
             se["synonym"].append(se["label"])
             se["synonym_autosuggest"] = []
             se["synonym_autosuggest"].extend(se["label_autosuggest"])
