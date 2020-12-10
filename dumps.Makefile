@@ -64,8 +64,8 @@ $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)
 # 1. pick name, add to the correct DUMPS variable (DUMPS_SOLR, DUMPS_PDB, DUMPS_OWLERY)
 # 2. create new sparql query in sparql/, naming it 'construct_name.sparql', e.g. sparql/construct_image_names.sparql
 # Note that non-sparql goals, like 'inferred_annotation', need to be added separately
-DUMPS_SOLR=all preferred_roots deprecation_label image_names
-DUMPS_PDB=all preferred_roots deprecation_label
+DUMPS_SOLR=all preferred_roots deprecation_label image_names has_image
+DUMPS_PDB=all preferred_roots deprecation_label has_image has_neuron_connectivity has_region_connectivity
 DUMPS_OWLERY=all
 CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
 OWL2NEOCSV="$(SCRIPTS_DIR)/owl2neo4jcsv.jar"
