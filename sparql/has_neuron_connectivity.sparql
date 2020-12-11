@@ -5,5 +5,5 @@ CONSTRUCT {
 	?x <http://n2o.neo/property/nodeLabel> "has_neuron_connectivity" .
 }
 WHERE {
-  ?x <http://purl.obolibrary.org/obo/RO_0002120>|<http://purl.obolibrary.org/obo/RO_0002103> ?y . # synapsed_to/by
+  ?x <http://purl.obolibrary.org/obo/RO_0002120>|<http://purl.obolibrary.org/obo/RO_0002103> ?y . 
 }
