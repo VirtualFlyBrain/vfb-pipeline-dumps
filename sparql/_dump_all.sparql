@@ -1,6 +1,0 @@
-PREFIX : <http://virtualflybrain.org#>
-
-CONSTRUCT { ?x ?p ?y . }
-
-WHERE {?x ?p ?y  .}
-

@@ -1,7 +1,0 @@
-CONSTRUCT {
-	?x <http://n2o.neo/property/nodeLabel> "Deprecated" .
-}
-WHERE {
-  ?x <http://www.w3.org/2002/07/owl#deprecated> true .
-	FILTER(isIRI(?x)) 
-}

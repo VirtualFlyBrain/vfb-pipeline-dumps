@@ -3,12 +3,17 @@ FROM python:3.6
 VOLUME /logs
 VOLUME /out
 
+# from compose args
+ARG CONF_REPO
+ARG CONF_BRANCH
+
+ENV CONF_BASE=/opt/conf_base
+ENV CONF_DIR=${CONF_BASE}/config/dumps
+
 ENV WORKSPACE=/opt/VFB
 ENV VALIDATE=true
 ENV VALIDATESHEX=true
 ENV VALIDATESHACL=true
-ENV SPARQL_ENDPOINT=http://ts.p2.virtualflybrain.org/rdf4j-server/repositories/vfb
-ENV VFB_CONFIG=http://virtualflybrain.org/config/neo4j2owl-config.yaml
 
 # This is appended to all ROBOT commands. It basically filters out all lines in stdout that match the grep.
 
@@ -20,6 +25,14 @@ RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
 
 RUN mkdir $WORKSPACE
+RUN mkdir $CONF_BASE
+
+###### REMOTE CONFIG ######
+ARG CONF_BASE_TEMP=${CONF_BASE}/temp
+RUN mkdir $CONF_BASE_TEMP
+RUN cd "${CONF_BASE_TEMP}" && git clone --quiet ${CONF_REPO} && cd $(ls -d */|head -n 1) && git checkout ${CONF_BRANCH}
+# copy inner project folder from temp to conf base
+RUN cd "${CONF_BASE_TEMP}" && cd $(ls -d */|head -n 1) && cp -R . $CONF_BASE && cd $CONF_BASE && rm -r ${CONF_BASE_TEMP} && tree ${CONF_BASE}
 
 ###### ROBOT ######
 ENV ROBOT v1.7.2
@@ -46,7 +59,6 @@ COPY process.sh $WORKSPACE/process.sh
 COPY dumps.Makefile $WORKSPACE/Makefile
 RUN chmod +x $WORKSPACE/process.sh
 # COPY vfb*.txt $WORKSPACE/
-COPY /sparql $WORKSPACE/sparql
 COPY /scripts $WORKSPACE/scripts
 # COPY /shacl $WORKSPACE/shacl
 # COPY /shex $WORKSPACE/shex
