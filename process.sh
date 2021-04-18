@@ -8,12 +8,18 @@ echo "Start: vfb-pipeline-dumps"
 echo "VFBTIME:"
 date
 
+## get remote configs
+echo "Sourcing remote config"
+source ${CONF_DIR}/config.env
+
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
 export OUTDIR=/out
 export RAW_DUMPS_DIR=$OUTDIR/raw
 export FINAL_DUMPS_DIR=$OUTDIR/dumps
-export SPARQL_DIR=$WORKSPACE/sparql
+export SPARQL_DIR=$CONF_DIR/sparql
 export SCRIPTS_DIR=$WORKSPACE/scripts
+export VFB_CONFIG=${VFB_CONFIG}
+export SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
 
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
