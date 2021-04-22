@@ -3,6 +3,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 CONSTRUCT {
 	?x <http://n2o.neo/property/nodeLabel> "has_neuron_connectivity" .
+	?y <http://n2o.neo/property/nodeLabel> "has_neuron_connectivity" .
 }
 WHERE {
   ?x <http://purl.obolibrary.org/obo/RO_0002120>|<http://purl.obolibrary.org/obo/RO_0002103> ?y . 
