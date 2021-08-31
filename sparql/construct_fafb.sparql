@@ -1,0 +1,10 @@
+PREFIX oio: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { VFBd:catmaid_fafb <http://n2o.neo/property/nodeLabel> 'FAFB' . }
+CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'FAFB' . }
+WHERE {
+  ?x
+  oio:hasDbXref
+  VFBd:catmaid_fafb .
+}

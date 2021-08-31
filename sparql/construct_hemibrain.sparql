@@ -1,0 +1,10 @@
+PREFIX oio: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { VFBd:neuprint_JRC_Hemibrain_1point1 <http://n2o.neo/property/nodeLabel> 'Hemibrain' . }
+CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'Hemibrain' . }
+WHERE {
+  ?x
+  oio:hasDbXref
+  VFBd:neuprint_JRC_Hemibrain_1point1 .
+}
