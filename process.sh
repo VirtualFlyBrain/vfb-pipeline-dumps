@@ -20,6 +20,10 @@ export SPARQL_DIR=$CONF_DIR/sparql
 export SCRIPTS_DIR=$WORKSPACE/scripts
 export VFB_CONFIG=${VFB_CONFIG}
 export SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
+export DUMPS_SOLR=${DUMPS_SOLR}
+export DUMPS_PDB=${DUMPS_PDB}
+export DUMPS_OWLERY=${DUMPS_OWLERY}
+
 
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
