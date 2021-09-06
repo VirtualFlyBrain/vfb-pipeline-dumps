@@ -1,7 +1,6 @@
 PREFIX oio: <http://www.geneontology.org/formats/oboInOwl#>
 PREFIX VFBd: <http://virtualflybrain.org/reports/>
 
-CONSTRUCT { VFBd:catmaid_l1em <http://n2o.neo/property/nodeLabel> 'L1EM' . }
 CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'L1EM' . }
 WHERE {
   ?x
