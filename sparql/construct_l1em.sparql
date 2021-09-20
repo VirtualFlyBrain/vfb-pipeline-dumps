@@ -1,0 +1,9 @@
+PREFIX oio: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'L1EM' . }
+WHERE {
+  ?x
+  oio:hasDbXref
+  VFBd:catmaid_l1em .
+}

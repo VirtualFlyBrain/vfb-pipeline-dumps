@@ -1,0 +1,4 @@
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { VFBd:catmaid_fafb <http://n2o.neo/property/nodeLabel> 'FAFB' . }
+WHERE {}
