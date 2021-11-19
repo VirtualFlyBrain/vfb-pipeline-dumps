@@ -1,4 +1,4 @@
 PREFIX VFBd: <http://virtualflybrain.org/reports/>
 
-CONSTRUCT { VFBd:neuprint_JRC_Hemibrain_1point1 <http://n2o.neo/property/nodeLabel> 'Hemibrain' . }
+CONSTRUCT { VFBd:neuprint_JRC_Hemibrain_1point1 <http://n2o.neo/property/nodeLabel> 'FlyEM-HB' . }
 WHERE {}
