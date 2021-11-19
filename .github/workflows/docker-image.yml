@@ -1,0 +1,31 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      
+    - name: Build Docker Image
+        id: buildAndPushImage
+        uses: abhishek-070/docker-image-build-push-action@v1.0
+        with:
+          registry_url: 'docker.io'
+          repository_name: 'virtualflybrain/vfb-pipeline-dumps'
+          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          image_version: 'latest'
+          docker_file: '.'
+    - name: Get pre step result output image_pull_url
+        run: echo "The time was ${{ steps.buildAndPushImage.outputs.image_pull_url }}"
