@@ -13,16 +13,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-      
-    - name: Build Docker Image
-        uses: abhishek-070/docker-image-build-push-action@v1.0
-        with:
-          registry_url: 'docker.io'
-          repository_name: 'virtualflybrain/vfb-pipeline-dumps'
-          user_name: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image_version: 'latest'
-          docker_file: '.'
+    - name: Checkout
+      uses: actions/checkout@v1
+    - run: commandToBuildYourProject.sh
+    - name: Dockerize
+      if: success()
+      uses: manusa/actions-publish-docker@v1.1.2
+      with:
+        name: virtualflybrain/vfb-pipeline-dumps
+        username: ${{ secrets.DOCKER_HUB_USER }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    
