@@ -55,6 +55,7 @@ RUN wget $SHACL_ZIP -O $WORKSPACE/shacl.zip && \
 ###### Copy pipeline files ########
 ENV STDOUT_FILTER=\|\ \{\ grep\ -v\ \'OWLRDFConsumer\\\|InvalidReferenceViolation\\\|RDFParserRegistry\'\ \|\|\ true\;\ \}
 ENV INFER_ANNOTATE_RELATION=http://n2o.neo/property/nodeLabel
+ENV UNIQUE_FACETS_ANNOTATION=http://n2o.neo/property/uniqueFacets
 COPY process.sh $WORKSPACE/process.sh
 COPY dumps.Makefile $WORKSPACE/Makefile
 RUN chmod +x $WORKSPACE/process.sh
