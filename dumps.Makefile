@@ -39,12 +39,12 @@ $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
 
 $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
-	$(ROBOT) merge -i $< \
+	$(ROBOT) -vvv merge -i $< \
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/$*.owl" \
 		convert -f owl -o $@ $(STDOUT_FILTER)
 
 $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
-	$(ROBOT) merge -i $< \
+	$(ROBOT) -vvv merge -i $< \
 		reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural \
 		relax \
 		reduce --reasoner ELK --named-classes-only true \
