@@ -1,4 +1,4 @@
-FROM python:3.6.13
+FROM python:3.6
 
 VOLUME /logs
 VOLUME /out
