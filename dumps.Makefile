@@ -35,7 +35,8 @@ endif
 
 all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs
 
-## SPARQL query retrieves full dump of triplestore
+## SPARQL query retrieves full dump of triplestore (%=construct_all) but also generates a set of v.simple OWL files that are the output of SPARQL consruct queries to generate (what later become) neo:labels based on content.
+
 $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
 
@@ -56,7 +57,7 @@ $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" \
 		convert -f owl -o $@ $(STDOUT_FILTER)
 
-### Add reasoner and SPARQL driven neo labels
+### Add reasoner driven neo labels
 
 $(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml
 	java -jar $ $(SCRIPTS_DIR)/infer-annotate.jar $^ $(INFER_ANNOTATE_RELATION) $@
