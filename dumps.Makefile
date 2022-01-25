@@ -35,13 +35,18 @@ endif
 
 all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs
 
+## SPARQL query retrieves full dump of triplestore
 $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
 
+## Annotate triple store dump and convert to OWL
 $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 	$(ROBOT) -vvv merge -i $< \
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/$*.owl" \
 		convert -f owl -o $@ $(STDOUT_FILTER)
+		
+		
+### Reason, relax reduce cycle on whole dump. Note - serious danger of scaling issues here.
 
 $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
 	$(ROBOT) -vvv merge -i $< \
@@ -51,12 +56,15 @@ $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" \
 		convert -f owl -o $@ $(STDOUT_FILTER)
 
+### Add reasoner and SPARQL driven neo labels
+
 $(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml
 	java -jar $ $(SCRIPTS_DIR)/infer-annotate.jar $^ $(INFER_ANNOTATE_RELATION) $@
 
 $(RAW_DUMPS_DIR)/vfb-config.yaml:
 	wget $(VFB_CONFIG) -O $@
-
+	
+## Use JSON format reasoned triplestore dump + config as input to Python to populate SOLR
 $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)/vfb-config.yaml
 	python3 $(SCRIPTS_DIR)/obographs-solr.py $^ $@
 
@@ -72,6 +80,8 @@ OWL2NEOCSV="$(SCRIPTS_DIR)/owl2neo4jcsv.jar"
 
 $(CSV_IMPORTS):
 	mkdir -p $@
+
+## Convert reasoned dump to OBOgraphs JSON format
 
 $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/inferred_annotation.owl
 	$(ROBOT) merge $(patsubst %, -i %, $^) convert -f json -o $@ $(STDOUT_FILTER)
