@@ -65,8 +65,8 @@ $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)
 # 2. create new sparql query in sparql/, naming it 'construct_name.sparql', e.g. sparql/construct_image_names.sparql
 # Note that non-sparql goals, like 'inferred_annotation', need to be added separately
 DUMPS_SOLR=all preferred_roots deprecation_label image_names has_image
-DUMPS_PDB=all preferred_roots deprecation_label has_image connectome_fafb connectome_l1em connectome_hemibrain
-DUMPS_OWLERY=all connectome_fafb connectome_l1em connectome_hemibrain
+DUMPS_PDB=all preferred_roots deprecation_label has_image
+DUMPS_OWLERY=all
 CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
 OWL2NEOCSV="$(SCRIPTS_DIR)/owl2neo4jcsv.jar"
 
@@ -76,11 +76,14 @@ $(CSV_IMPORTS):
 $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/inferred_annotation.owl
 	$(ROBOT) merge $(patsubst %, -i %, $^) convert -f json -o $@ $(STDOUT_FILTER)
 
-$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(RAW_DUMPS_DIR)/inferred_annotation.owl
+PDB_EXTERNALS=connectome_fafb.owl connectome_l1em.owl connectome_hemibrain.owl
+$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(RAW_DUMPS_DIR)/inferred_annotation.owl $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNALS))
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
-$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY))
-	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
+OWLERY_EXTERNALS=connectome_fafb.owl connectome_l1em.owl connectome_hemibrain.owl
+$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(patsubst %, $(RAW_DUMPS_DIR)/%, $(OWLERY_EXTERNALS))
+	$(ROBOT) merge $(patsubst %, -i %, $^) \
+		filter --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
 
 pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
 	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "$(VFB_CONFIG)" $(CSV_IMPORTS)
