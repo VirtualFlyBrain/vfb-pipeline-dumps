@@ -76,12 +76,12 @@ $(CSV_IMPORTS):
 $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/inferred_annotation.owl
 	$(ROBOT) merge $(patsubst %, -i %, $^) convert -f json -o $@ $(STDOUT_FILTER)
 
-PDB_EXTERNALS=connectome_fafb.owl connectome_l1em.owl connectome_hemibrain.owl
-$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(RAW_DUMPS_DIR)/inferred_annotation.owl $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNALS))
+PDB_EXTERNAL_ONTS=connectome_fafb.owl connectome_l1em.owl connectome_hemibrain.owl
+$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(RAW_DUMPS_DIR)/inferred_annotation.owl $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
-OWLERY_EXTERNALS=connectome_fafb.owl connectome_l1em.owl connectome_hemibrain.owl
-$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(patsubst %, $(RAW_DUMPS_DIR)/%, $(OWLERY_EXTERNALS))
+OWLERY_EXTERNAL_ONTS=connectome_fafb.owl connectome_l1em.owl connectome_hemibrain.owl
+$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(patsubst %, $(RAW_DUMPS_DIR)/%, $(OWLERY_EXTERNAL_ONTS))
 	$(ROBOT) merge $(patsubst %, -i %, $^) \
 		filter --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
 
