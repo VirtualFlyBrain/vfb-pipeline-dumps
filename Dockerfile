@@ -52,4 +52,7 @@ COPY /scripts $WORKSPACE/scripts
 # COPY /shex $WORKSPACE/shex
 # COPY /test.ttl $WORKSPACE/
 
+###### Debug tools ########
+RUN apt-get -y update && apt-get -y install time
+
 CMD ["/opt/VFB/process.sh"]
