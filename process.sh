@@ -25,9 +25,9 @@ find $RAW_DUMPS_DIR -type f -delete
 echo "VFBTIME:"
 date
 
-echo '** Executing pipeline.. **'
+echo '** Executing pipeline.. **' | tee ${OUTDIR}/dumps.log
 
-make all
+{ /usr/bin/time -v make all ; } 2> ${OUTDIR}/dumps.log
 
 echo "End: vfb-pipeline-dumps"
 echo "VFBTIME:"
