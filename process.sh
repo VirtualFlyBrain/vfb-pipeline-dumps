@@ -9,6 +9,7 @@ echo "VFBTIME:"
 date
 
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
+export JAVA_OPTS=${ROBOT_ARGS}
 export OUTDIR=/out
 export RAW_DUMPS_DIR=$OUTDIR/raw
 export FINAL_DUMPS_DIR=$OUTDIR/dumps
