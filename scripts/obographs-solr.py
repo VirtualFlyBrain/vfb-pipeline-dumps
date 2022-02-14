@@ -12,6 +12,7 @@ import re
 from lib import get_id_variants, load_json, save_json
 
 n2o_nodelabel_iri = "http://n2o.neo/property/nodeLabel"
+n2o_uniquelabel_iri = "http://n2o.neo/property/uniqueFacets"
 n2o_filename_iri = "http://n2o.neo/custom/filename"
 n2o_thumbnail_iri = "http://n2o.neo/custom/thumbnail"
 obo_iri = "http://purl.obolibrary.org/obo/"
@@ -98,6 +99,7 @@ def obographs2solr(obo, curie_map, filters):
             se["synonym_autosuggest"].extend(se["label_autosuggest"])
 
             se["facets_annotation"] = []
+            se["unique_facets"] = []
             se["filename"] = []
             se["thumbnail"] = []
 
@@ -110,6 +112,8 @@ def obographs2solr(obo, curie_map, filters):
                     for annotation in e['meta']['basicPropertyValues']:
                         if annotation['pred']==n2o_nodelabel_iri:
                             se["facets_annotation"].append(annotation['val'])
+                        if annotation['pred']==n2o_uniquelabel_iri:
+                            se["unique_facets"].append(annotation['val'])
                         if annotation['pred']==n2o_filename_iri:
                             se["filename"].append(annotation['val'])
                         if annotation['pred']==n2o_thumbnail_iri:
