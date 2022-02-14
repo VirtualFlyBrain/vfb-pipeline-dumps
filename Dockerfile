@@ -22,7 +22,7 @@ apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev
 RUN mkdir $WORKSPACE
 
 ###### ROBOT ######
-ENV ROBOT v1.7.2
+ENV ROBOT v1.8.3
 ENV ROBOT_ARGS -Xmx20G
 ARG ROBOT_JAR=https://github.com/ontodev/robot/releases/download/$ROBOT/robot.jar
 ENV ROBOT_JAR ${ROBOT_JAR}
@@ -52,5 +52,8 @@ COPY /scripts $WORKSPACE/scripts
 # COPY /shacl $WORKSPACE/shacl
 # COPY /shex $WORKSPACE/shex
 # COPY /test.ttl $WORKSPACE/
+
+###### Debug tools ########
+RUN apt-get -y update && apt-get -y install time
 
 CMD ["/opt/VFB/process.sh"]

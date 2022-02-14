@@ -9,6 +9,7 @@ echo "VFBTIME:"
 date
 
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
+export JAVA_OPTS=${ROBOT_ARGS}
 export OUTDIR=/out
 export RAW_DUMPS_DIR=$OUTDIR/raw
 export FINAL_DUMPS_DIR=$OUTDIR/dumps
@@ -24,9 +25,9 @@ find $RAW_DUMPS_DIR -type f -delete
 echo "VFBTIME:"
 date
 
-echo '** Executing pipeline.. **'
+echo '** Executing pipeline.. **' | tee ${OUTDIR}/dumps.log
 
-make all
+{ /usr/bin/time -v make all ; } 2> ${OUTDIR}/dumps.log
 
 echo "End: vfb-pipeline-dumps"
 echo "VFBTIME:"
