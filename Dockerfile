@@ -42,6 +42,7 @@ RUN wget $SHACL_ZIP -O $WORKSPACE/shacl.zip && \
 ###### Copy pipeline files ########
 ENV STDOUT_FILTER=\|\ \{\ grep\ -v\ \'OWLRDFConsumer\\\|InvalidReferenceViolation\\\|RDFParserRegistry\'\ \|\|\ true\;\ \}
 ENV INFER_ANNOTATE_RELATION=http://n2o.neo/property/nodeLabel
+ENV UNIQUE_FACETS_ANNOTATION=http://n2o.neo/property/uniqueFacets
 COPY process.sh $WORKSPACE/process.sh
 COPY dumps.Makefile $WORKSPACE/Makefile
 RUN chmod +x $WORKSPACE/process.sh
@@ -51,5 +52,8 @@ COPY /scripts $WORKSPACE/scripts
 # COPY /shacl $WORKSPACE/shacl
 # COPY /shex $WORKSPACE/shex
 # COPY /test.ttl $WORKSPACE/
+
+###### Debug tools ########
+RUN apt-get -y update && apt-get -y install time
 
 CMD ["/opt/VFB/process.sh"]
