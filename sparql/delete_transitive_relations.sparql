@@ -1,10 +1,8 @@
 PREFIX RO: <http://purl.obolibrary.org/obo/RO_>
 PREFIX UBERON: <http://purl.obolibrary.org/obo/uberon/core#>
 
-DELETE DATA {
-  ?s1 RO:0002323 ?o1 .
-  ?s2 UBERON:transitively_connected_to ?o2 .
-  ?s3 UBERON:transitively_anteriorly_connected_to ?o3 .
-  ?s4 UBERON:transitively_distally_connected_to ?o4 .
-  ?s5 UBERON:transitively_proximally_connected_to ?o5 .
-}
+DELETE WHERE {?s1 RO:0002323 ?o1 .};
+DELETE WHERE {?s2 UBERON:transitively_connected_to ?o2 .};
+DELETE WHERE {?s3 UBERON:transitively_anteriorly_connected_to ?o3 .};
+DELETE WHERE {?s4 UBERON:transitively_distally_connected_to ?o4 .};
+DELETE WHERE {?s5 UBERON:transitively_proximally_connected_to ?o5 .}

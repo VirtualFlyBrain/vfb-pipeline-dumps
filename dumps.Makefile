@@ -40,7 +40,7 @@ all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_
 
 .PHONY: remove_embargoed_data
 remove_embargoed_data: $(SPARQL_DIR)/delete_*.sparql
-	$(foreach f,$^,curl -X "DELETE" --data-urlencode "query=`cat $(f)`" $(SPARQL_ENDPOINT))
+	$(foreach f,$^,curl -X POST -H "Content-Type:application/x-www-form-urlencoded" -d "update=`cat $(f)`" $(SPARQL_ENDPOINT)/statements)
 
 $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
