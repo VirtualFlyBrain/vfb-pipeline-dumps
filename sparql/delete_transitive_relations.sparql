@@ -1,7 +1,7 @@
 PREFIX RO: <http://purl.obolibrary.org/obo/RO_>
 PREFIX UBERON: <http://purl.obolibrary.org/obo/uberon/core#>
 
-DELETE WHERE {
+DELETE DATA {
   ?s1 RO:0002323 ?o1 .
   ?s2 UBERON:transitively_connected_to ?o2 .
   ?s3 UBERON:transitively_anteriorly_connected_to ?o3 .
