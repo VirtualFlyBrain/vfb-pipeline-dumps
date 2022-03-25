@@ -50,7 +50,7 @@ $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
 	$(ROBOT) merge -i $< \
 		reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural \
 		relax \
-		reduce --reasoner ELK --named-classes-only true \
+		reduce --reasoner ELK \
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" \
 		convert -f owl -o $@ $(STDOUT_FILTER)
 
