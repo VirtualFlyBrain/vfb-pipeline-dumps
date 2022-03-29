@@ -36,7 +36,11 @@ ifndef UNIQUE_FACETS_ANNOTATION
 $(error UNIQUE_FACETS_ANNOTATION environment variable not set)
 endif
 
-all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs
+all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs
+
+.PHONY: remove_embargoed_data
+remove_embargoed_data: $(SPARQL_DIR)/delete_*.sparql
+	$(foreach f,$^,curl -X POST -H "Content-Type:application/x-www-form-urlencoded" -d "update=`cat $(f)`" $(SPARQL_ENDPOINT)/statements)
 
 $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
@@ -88,6 +92,6 @@ $(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DU
 
 $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY))
 	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
-	
+
 pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
 	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "$(VFB_CONFIG)" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION)
