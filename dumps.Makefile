@@ -42,9 +42,9 @@ all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_
 
 .PHONY: remove_embargoed_data
 remove_embargoed_data: $(SPARQL_DIR)/delete_*.sparql
-	echo $@ started: `date +%s` > vfb_pipeline_dumps.log
+	echo $@ started: `date +%s` > $(LOG_FILE)
 	$(foreach f,$^,curl -X POST -H "Content-Type:application/x-www-form-urlencoded" -d "update=`cat $(f)`" $(SPARQL_ENDPOINT)/statements)
-	echo $@ ended: `date +%s` >> vfb_pipeline_dumps.log
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 $(RAW_DUMPS_DIR)/%.ttl:
 	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
