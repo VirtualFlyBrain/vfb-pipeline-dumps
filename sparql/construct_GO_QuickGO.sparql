@@ -1,0 +1,15 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX oio: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { ?x oio:hasDbXref VFBd:QuickGO .
+	[ rdf:type owl:Axiom ;
+   owl:annotatedSource ?x ;
+   owl:annotatedProperty oio:hasDbXref ;
+   owl:annotatedTarget VFBd:QuickGO ;
+   <http://n2o.neo/custom/accession> ?id ] . }
+WHERE { ?x oio:id ?id
+  FILTER REGEX(?id, "GO:[0-9]+") . }
+
+
