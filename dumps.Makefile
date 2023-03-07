@@ -147,8 +147,7 @@ pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl
 	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "$(VFB_CONFIG)" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION)
-
+  
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 	echo "=== Print Timer Logs ==="
-	echo "`cat $(LOG_FILE)`"
-
+	echo "`while read -r line; do if [[ $line == *started:* ]]; then start_time=$(echo $line | cut -d' ' -f2); step_name=$(echo $line | cut -d' ' -f1); elif [[ $line == *ended:* ]]; then end_time=$(echo $line | cut -d' ' -f2); run_time=$((end_time - start_time)); duration=$(date -u -d @${run_time} +"%T"); echo "${step_name} took ${duration}"; fi; done < $(LOG_FILE)`"
