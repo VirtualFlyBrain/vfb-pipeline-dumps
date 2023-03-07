@@ -1,7 +1,7 @@
 PREFIX oio: <http://www.geneontology.org/formats/oboInOwl#>
 PREFIX VFBd: <http://virtualflybrain.org/reports/>
 
-CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'Hemibrain' . }
+CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'FlyEM-HB' . }
 WHERE {
   ?x
   oio:hasDbXref
