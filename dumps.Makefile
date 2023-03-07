@@ -64,7 +64,7 @@ $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 	$(ROBOT) merge -i $< \
 		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/$*.owl" \
 		convert -f owl -o $@ $(STDOUT_FILTER)
-	echo $@ ended: `date +%` >> $(LOG_FILE)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
 # reduces the ontology, annotates it, and saves it to disk.
