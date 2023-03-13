@@ -1,0 +1,12 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+	?x <http://n2o.neo/property/nodeLabel> "has_subClass" .
+}
+WHERE {
+  ?x a owl:Class .
+  ?y rdfs:subClassOf ?x .
+  FILTER(isIRI(?x))
+}
