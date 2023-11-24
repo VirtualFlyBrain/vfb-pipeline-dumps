@@ -74,15 +74,42 @@ $(RAW_DUMPS_DIR)/constructReasoned_%.owl: $(RAW_DUMPS_DIR)/reasoned.owl
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
 # reduces the ontology, annotates it, and saves it to disk.
-$(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
+# Intermediate files directory
+INTERMEDIATE_DIR = $(RAW_DUMPS_DIR)/intermediate
+
+# Create the intermediate directory
+$(INTERMEDIATE_DIR):
+	mkdir -p $@
+
+# Modified target to use intermediate files and clean up after each step
+$(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl | $(INTERMEDIATE_DIR)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) merge -i $< \
-		reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural \
-		relax \
-		reduce --reasoner ELK \
-		annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" \
-		convert -f owl -o $@ $(STDOUT_FILTER)
+
+	# Step 1: Merge
+	$(ROBOT) merge -i $< -o $(INTERMEDIATE_DIR)/merged.owl $(STDOUT_FILTER)
+
+	# Step 2: Reason
+	$(ROBOT) reason -i $(INTERMEDIATE_DIR)/merged.owl --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural -o $(INTERMEDIATE_DIR)/reasoned.owl $(STDOUT_FILTER)
+	rm $(INTERMEDIATE_DIR)/merged.owl
+
+	# Step 3: Relax
+	$(ROBOT) relax -i $(INTERMEDIATE_DIR)/reasoned.owl -o $(INTERMEDIATE_DIR)/relaxed.owl $(STDOUT_FILTER)
+	rm $(INTERMEDIATE_DIR)/reasoned.owl
+
+	# Step 4: Reduce
+	$(ROBOT) reduce -i $(INTERMEDIATE_DIR)/relaxed.owl --reasoner ELK -o $(INTERMEDIATE_DIR)/reduced.owl $(STDOUT_FILTER)
+	rm $(INTERMEDIATE_DIR)/relaxed.owl
+
+	# Step 5: Annotate
+	$(ROBOT) annotate -i $(INTERMEDIATE_DIR)/reduced.owl --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" -o $(INTERMEDIATE_DIR)/annotated.owl $(STDOUT_FILTER)
+	rm $(INTERMEDIATE_DIR)/reduced.owl
+
+	# Step 6: Convert and clean up
+	$(ROBOT) convert -i $(INTERMEDIATE_DIR)/annotated.owl -f owl -o $@ $(STDOUT_FILTER)
+	rm $(INTERMEDIATE_DIR)/annotated.owl
+
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
 
 # Infers annotations and relations for the virtual fly brain ontology using the ROBOT inference engine.
 $(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml
