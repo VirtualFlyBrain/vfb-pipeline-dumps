@@ -86,11 +86,11 @@ $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl | $(INTERMEDIATE_DI
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 
 	# Step 1: Merge
-	# $(ROBOT) merge -vvv -i $< -o $(INTERMEDIATE_DIR)/merged.owl
+	$(ROBOT) merge -vvv -i $< -o $(INTERMEDIATE_DIR)/merged.owl
 
 	# Step 2: Reason
-	$(ROBOT) reason -i $< --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural -o $(INTERMEDIATE_DIR)/reasoned.owl $(STDOUT_FILTER)
-	# rm $(INTERMEDIATE_DIR)/merged.owl
+	$(ROBOT) reason -i $(INTERMEDIATE_DIR)/merged.owl --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural -o $(INTERMEDIATE_DIR)/reasoned.owl $(STDOUT_FILTER)
+	rm $(INTERMEDIATE_DIR)/merged.owl
 
 	# Step 3: Relax
 	$(ROBOT) relax -i $(INTERMEDIATE_DIR)/reasoned.owl -o $(INTERMEDIATE_DIR)/relaxed.owl $(STDOUT_FILTER)
