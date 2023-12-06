@@ -5,7 +5,7 @@ SHELL=/bin/bash -o pipefail
 ROBOT=robot
 
 # Specifies the name of the log file used to record the time each target starts and ends.
-LOG_FILE = vfb_pipeline_dumps.log
+LOG_FILE=vfb_pipeline_dumps.log
 
 # Declares a phony target to check that all necessary environment variables are set.
 .PHONY: checkenv
