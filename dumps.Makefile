@@ -122,7 +122,7 @@ DUMPS_OWLERY=all
 DUMPS_REASONED=has_subClass
 
 # ontologies for side-loading
-PDB_EXTERNAL_ONTS=connectome_fafb.owl connectome_l1em.owl connectome_hemibrain.owl
+PDB_EXTERNAL_ONTS=connectome_*.owl dataset_FBlc*
 
 # Specifies the location where the CSV import files are stored.
 CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
