@@ -31,7 +31,7 @@ date | tee -a ${OUTDIR}/dumps.log
 
 log '** Executing pipeline.. **' | tee -a ${OUTDIR}/dumps.log
 
-{ /usr/bin/time -v make -f dumps.Makefile all 2>&1 ; } | tee -a ${OUTDIR}/dumps.log
+{ /usr/bin/time -v make 2>&1 ; } | tee -a ${OUTDIR}/dumps.log
 
 log "End: vfb-pipeline-dumps"
 log "VFBTIME:"
