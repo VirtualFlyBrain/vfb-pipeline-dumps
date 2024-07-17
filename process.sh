@@ -3,6 +3,11 @@
 set -e
 set -o pipefail
 
+echo "process started"
+echo "Start: vfb-pipeline-dumps"
+echo "VFBTIME:"
+date
+
 export ROBOT_JAVA_ARGS=${ROBOT_ARGS}
 export JAVA_OPTS=${ROBOT_ARGS}
 export OUTDIR=/out
@@ -11,29 +16,20 @@ export FINAL_DUMPS_DIR=$OUTDIR/dumps
 export SPARQL_DIR=$WORKSPACE/sparql
 export SCRIPTS_DIR=$WORKSPACE/scripts
 
-log() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a ${OUTDIR}/dumps.log
-}
-
-log "process started"
-log "Start: vfb-pipeline-dumps"
-log "VFBTIME:"
-date | tee -a ${OUTDIR}/dumps.log
-
-log "** Creating temporary directories.. **"
+echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
 mkdir -p $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
 find $FINAL_DUMPS_DIR -type f -delete
 find $RAW_DUMPS_DIR -type f -delete
 
-log "VFBTIME:"
-date | tee -a ${OUTDIR}/dumps.log
+echo "VFBTIME:"
+date
 
-log '** Executing pipeline.. **' | tee -a ${OUTDIR}/dumps.log
+echo '** Executing pipeline.. **' | tee ${OUTDIR}/dumps.log
 
-{ /usr/bin/time -v make -f dumps.Makefile all 2>&1 ; } | tee -a ${OUTDIR}/dumps.log
+{ /usr/bin/time -v make all ; } 2> ${OUTDIR}/dumps.log
 
-log "End: vfb-pipeline-dumps"
-log "VFBTIME:"
-date | tee -a ${OUTDIR}/dumps.log
-log "process complete"
+echo "End: vfb-pipeline-dumps"
+echo "VFBTIME:"
+date
+echo "process complete"
