@@ -125,10 +125,10 @@ DUMPS_REASONED=has_subClass
 PDB_EXTERNAL_ONTS=connectome_*.owl dataset_FBlc*
 
 # Specifies the location where the CSV import files are stored.
-CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
+CSV_IMPORTS=$(FINAL_DUMPS_DIR)/csv_imports
 
 # Specifies the JAR file used to convert OWL files to CSV format for import into Neo4j.
-OWL2NEOCSV="$(SCRIPTS_DIR)/owl2neo4jcsv.jar"
+OWL2NEOCSV=$(SCRIPTS_DIR)/owl2neo4jcsv.jar
 
 # Creates the CSV_IMPORTS directory.
 $(CSV_IMPORTS):
