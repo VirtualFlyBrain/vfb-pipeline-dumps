@@ -112,7 +112,7 @@ $(FINAL_DUMPS_DIR)/solr.json: $(FINAL_DUMPS_DIR)/obographs.json $(RAW_DUMPS_DIR)
 # Note that non-sparql goals, like 'inferred_annotation', need to be added separately
 
 # Specifies the names of the dumps used to generate the SOLR index.
-DUMPS_SOLR=all preferred_roots deprecation_label image_names has_image
+DUMPS_SOLR=all
 # Specifies the names of the dumps used to generate the PDB.
 DUMPS_PDB=all preferred_roots deprecation_label has_image
 # Specifies the names of the dumps used to generate the OWLery.
