@@ -17,8 +17,8 @@ docker-run:
 	docker run --volume $(OUTDIR):/out --env=ROBOT_JAVA_ARGS='-Xmx8G' $(IM)
 
 docker-clean:
-	-docker kill $(IM) || echo not running ;
-	-docker rm $(IM) || echo not made 
+	docker kill $(IM) || echo not running ;
+	docker rm $(IM) || echo not made 
 
 docker-publish-no-build:
 	@docker push $(IM):$(VERSION) \
