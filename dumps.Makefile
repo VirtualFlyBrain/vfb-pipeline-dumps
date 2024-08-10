@@ -44,7 +44,7 @@ ifndef UNIQUE_FACETS_ANNOTATION
 endif
 
 # The default target that generates all necessary OWL files.
-all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs
+all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
 
 # Declares a phony target to remove embargoed data.
 .PHONY: remove_embargoed_data
@@ -147,7 +147,7 @@ $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.ow
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the PDB.owl file, which is used to generate the PDB.
-$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_%.owl, $(DUMPS_REASONED)) $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
+$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_%.owl, $(DUMPS_REASONED)) $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) -vvv merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
@@ -158,8 +158,20 @@ $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $
 	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
+# Merge external ontologies to directly side load to PDB
+$(RAW_DUMPS_DIR)/side_loads.owl: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+# Generates the side loading CSV files for the PDB
+pdb_sideloads: $(RAW_DUMPS_DIR)/side_loads.owl | $(CSV_IMPORTS)
+        echo $@ started: `date +%s` >> $(LOG_FILE)
+	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
 # Generates the CSV files for the PDB and imports them into Neo4j.
-pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
+pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl pdb_sideloads | $(CSV_IMPORTS)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "$(VFB_CONFIG)" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
