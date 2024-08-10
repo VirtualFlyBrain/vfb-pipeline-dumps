@@ -10,5 +10,3 @@ WHERE {
   ?y rdfs:subClassOf ?x .
   FILTER(isIRI(?x))
 }
-LIMIT 1000
-OFFSET %OFFSET%
