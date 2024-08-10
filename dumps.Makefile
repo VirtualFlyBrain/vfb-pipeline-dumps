@@ -69,7 +69,7 @@ $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 # This target constructs an OWL file from the SPARQL query specified in the constructReasoned_*.sparql file via querying it in the reasoned ontology.
 $(RAW_DUMPS_DIR)/constructReasoned_%.owl: $(RAW_DUMPS_DIR)/reasoned.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	$(SCRIPTS_DIR)/run_sparql_in_chunks.sh $(SPARQL_DIR)/constructReasoned_$*.sparql $@ 1000 $< $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
