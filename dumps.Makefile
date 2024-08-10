@@ -55,8 +55,8 @@ remove_embargoed_data: $(SPARQL_DIR)/delete_*.sparql
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # This target constructs a TTL file from the SPARQL query specified in the construct_*.sparql file and downloads it from the SPARQL endpoint.
-$(RAW_DUMPS_DIR)/%.ttl:
-	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
+$(RAW_DUMPS_DIR)/%.ttl: $(SPARQL_DIR)/construct_%.sparql
+	curl -G --data-urlencode "query=`cat $<`" $(SPARQL_ENDPOINT) -o $@
 
 # This target constructs an OWL file from the TTL file specified in the prerequisite and adds an ontology IRI, then converts it to the OWL format.
 $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
@@ -67,9 +67,9 @@ $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # This target constructs an OWL file from the SPARQL query specified in the constructReasoned_*.sparql file via querying it in the reasoned ontology.
-$(RAW_DUMPS_DIR)/constructReasoned_%.owl: $(RAW_DUMPS_DIR)/reasoned.owl
+$(RAW_DUMPS_DIR)/constructReasoned_%.owl: $(RAW_DUMPS_DIR)/reasoned.owl $(SPARQL_DIR)/constructReasoned_%.sparql
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(SCRIPTS_DIR)/run_sparql_in_chunks.sh $(SPARQL_DIR)/constructReasoned_$*.sparql $@ 1000 $< $(STDOUT_FILTER)
+	$(SCRIPTS_DIR)/run_sparql_in_chunks.sh $< $@ 1000 $(RAW_DUMPS_DIR)/reasoned.owl $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
@@ -121,20 +121,20 @@ DUMPS_OWLERY=all
 # Query file format should be 'constructReasoned_name.sparql'
 DUMPS_REASONED=has_subClass
 
-# ontologies for side-loading
+# Ontologies for side-loading
 PDB_EXTERNAL_ONTS=connectome_*.owl VFB_scRNAseq_exp_* VFB_EPseq_exp_*
 
 # Specifies the location where the CSV import files are stored.
-CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
+CSV_IMPORTS=$(FINAL_DUMPS_DIR)/csv_imports
 
 # Specifies the JAR file used to convert OWL files to CSV format for import into Neo4j.
-OWL2NEOCSV="$(SCRIPTS_DIR)/owl2neo4jcsv.jar"
+OWL2NEOCSV=$(SCRIPTS_DIR)/owl2neo4jcsv.jar
 
 # Creates the CSV_IMPORTS directory.
 $(CSV_IMPORTS):
 	mkdir -p $@
 
-# reasoned and merged intermediate product to be used by 'constructReasoned_name.sparql' queries
+# Reasoned and merged intermediate product to be used by 'constructReasoned_name.sparql' queries.
 $(RAW_DUMPS_DIR)/reasoned.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
@@ -166,7 +166,7 @@ $(RAW_DUMPS_DIR)/side_loads.owl: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNA
 
 # Generates the side loading CSV files for the PDB
 pdb_sideloads: $(RAW_DUMPS_DIR)/side_loads.owl | $(CSV_IMPORTS)
-        echo $@ started: `date +%s` >> $(LOG_FILE)
+	echo $@ started: `date +%s` >> $(LOG_FILE)
 	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
@@ -177,4 +177,3 @@ pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl pdb_sideloads | $(CSV_IMPORTS)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 	echo "=== Print Timer Logs ==="
 	echo "`cat $(LOG_FILE)`"
-
