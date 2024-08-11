@@ -21,5 +21,12 @@ done
 # Merge all chunk files
 robot merge $(find "$TEMP_DIR" -name "*.ttl" | xargs -I {} echo "-i {}") -o "$OUTPUT_FILE"
 
+# Check if the output file was created.
+if [ ! -f "$OUTPUT_FILE" ]; then
+    echo "Error: Final output file $OUTPUT_FILE was not created."
+    ls -lh "$TEMP_DIR"
+    exit 1
+fi
+
 # Clean up
 rm -r "$TEMP_DIR"
