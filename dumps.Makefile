@@ -44,7 +44,7 @@ ifndef UNIQUE_FACETS_ANNOTATION
 endif
 
 # The default target that generates all necessary OWL files.
-all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
+all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl .WAIT $(FINAL_DUMPS_DIR)/solr.json .WAIT $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
 
 # Declares a phony target to remove embargoed data.
 .PHONY: remove_embargoed_data
