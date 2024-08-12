@@ -31,9 +31,11 @@ while true; do
     # Debug output: print the command about to be run
     echo "Running robot query with the following command:"
     echo "robot query -i \"$INPUT_ONTOLOGY\" --query \"$TEMP_SPARQL\" -o \"$CHUNK_OUTPUT\""
+    echo "$TEMP_SPARQL:"
+    cat -n "$TEMP_SPARQL"
 
     # Run the query with the current OFFSET and CHUNK_SIZE
-    robot query -i "$INPUT_ONTOLOGY" --query "$TEMP_SPARQL" -o "$CHUNK_OUTPUT" 2>&1 | grep -v 'OWLRDFConsumer\|InvalidReferenceViolation\|RDFParserRegistry' || true
+    robot query -i "$INPUT_ONTOLOGY" --query "$TEMP_SPARQL" -o "$CHUNK_OUTPUT" -vvv
 
     # Check if the chunk output file exists and is not empty
     if [ ! -s "$CHUNK_OUTPUT" ]; then
@@ -43,7 +45,7 @@ while true; do
 
     # Merge the chunk into the final output file
     if [ -f "$OUTPUT_FILE" ]; then
-        robot merge -i "$OUTPUT_FILE" -i "$CHUNK_OUTPUT" -o "$OUTPUT_FILE"
+        robot merge -i "$OUTPUT_FILE" -i "$CHUNK_OUTPUT" -o "$OUTPUT_FILE" -vvv
     else
         mv "$CHUNK_OUTPUT" "$OUTPUT_FILE"
     fi
