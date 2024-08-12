@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Assign passed parameters to variables
 SPARQL_QUERY_FILE=$1    # The SPARQL query file
 OUTPUT_FILE=$2          # The final OWL output file
 CHUNK_SIZE=$3           # Number of results to fetch in each chunk
@@ -24,13 +23,17 @@ while true; do
     # Define the output file for the current chunk
     CHUNK_OUTPUT="${TEMP_DIR}/chunk_${OFFSET}.owl"
 
+    # Create a temporary SPARQL file with LIMIT and OFFSET
+    TEMP_SPARQL=$(mktemp)
+    cat "$SPARQL_QUERY_FILE" > "$TEMP_SPARQL"
+    echo "LIMIT $CHUNK_SIZE OFFSET $OFFSET" >> "$TEMP_SPARQL"
+
     # Debug output: print the command about to be run
     echo "Running robot query with the following command:"
-    echo "robot query -i \"$INPUT_ONTOLOGY\" --query \"$SPARQL_QUERY_FILE\" -o \"$CHUNK_OUTPUT\" --limit \"$CHUNK_SIZE\" --offset \"$OFFSET\""
+    echo "robot query -i \"$INPUT_ONTOLOGY\" --query \"$TEMP_SPARQL\" -o \"$CHUNK_OUTPUT\""
 
     # Run the query with the current OFFSET and CHUNK_SIZE
-    robot query -i "$INPUT_ONTOLOGY" --query "$SPARQL_QUERY_FILE" -o "$CHUNK_OUTPUT" \
-        --limit "$CHUNK_SIZE" --offset "$OFFSET" 2>&1 | grep -v 'OWLRDFConsumer\|InvalidReferenceViolation\|RDFParserRegistry' || true
+    robot query -i "$INPUT_ONTOLOGY" --query "$TEMP_SPARQL" -o "$CHUNK_OUTPUT" 2>&1 | grep -v 'OWLRDFConsumer\|InvalidReferenceViolation\|RDFParserRegistry' || true
 
     # Check if the chunk output file exists and is not empty
     if [ ! -s "$CHUNK_OUTPUT" ]; then
@@ -38,10 +41,8 @@ while true; do
         break
     fi
 
-    # Debug output: print the merge command if it runs
+    # Merge the chunk into the final output file
     if [ -f "$OUTPUT_FILE" ]; then
-        echo "Merging chunk with command:"
-        echo "robot merge -i \"$OUTPUT_FILE\" -i \"$CHUNK_OUTPUT\" -o \"$OUTPUT_FILE\""
         robot merge -i "$OUTPUT_FILE" -i "$CHUNK_OUTPUT" -o "$OUTPUT_FILE"
     else
         mv "$CHUNK_OUTPUT" "$OUTPUT_FILE"
@@ -49,6 +50,9 @@ while true; do
 
     # Increment the offset
     OFFSET=$((OFFSET + CHUNK_SIZE))
+
+    # Clean up the temporary SPARQL file
+    rm "$TEMP_SPARQL"
 done
 
 # Clean up temporary files
