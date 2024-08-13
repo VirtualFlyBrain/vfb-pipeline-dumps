@@ -117,6 +117,9 @@ DUMPS_REASONED=has_subClass
 
 # ontologies for side-loading
 PDB_EXTERNAL_ONTS=connectome_*.owl VFB_scRNAseq_exp_* VFB_EPseq_exp_*
+CONNECTOME_ONTS=connectome_*.owl
+VFB_scRNAseq_ONTS=VFB_scRNAseq_exp_*
+VFB_EPseq_exp_ONTS=VFB_EPseq_exp_*
 
 # Specifies the location where the CSV import files are stored.
 CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
@@ -189,17 +192,17 @@ $(RAW_DUMPS_DIR)/construct_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
-$(RAW_DUMPS_DIR)/connectome_merged.owl: connectome_*.owl
+$(RAW_DUMPS_DIR)/connectome_merged.owl: $(CONNECTOME_ONTS)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
-$(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_merged.owl: VFB_scRNAseq_exp_*
+$(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_merged.owl: $(VFB_scRNAseq_ONTS)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
-$(RAW_DUMPS_DIR)/VFB_EPseq_exp_merged.owl: VFB_EPseq_exp_*
+$(RAW_DUMPS_DIR)/VFB_EPseq_exp_merged.owl: $(VFB_EPseq_exp_ONTS)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
