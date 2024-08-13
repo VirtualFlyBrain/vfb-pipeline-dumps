@@ -72,6 +72,11 @@ $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 # 	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
 # 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
+$(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_merged.owl
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
 $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl: $(RAW_DUMPS_DIR)/connectome_merged.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
@@ -87,7 +92,7 @@ $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl: $(RAW_DUMPS_DIR)/VFB_EPs
 	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
-$(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl, $(DUMPS_REASONED))
+$(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl, $(DUMPS_REASONED))
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
@@ -157,6 +162,11 @@ $(CSV_IMPORTS):
 # 	echo $@ started: `date +%s` >> $(LOG_FILE)
 # 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 # 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/construct_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR))
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 $(RAW_DUMPS_DIR)/connectome_merged.owl: connectome_*.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
