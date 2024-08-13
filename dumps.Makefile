@@ -93,6 +93,7 @@ $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl: $(RAW_DUMPS_DIR)/VFB_EPs
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 $(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl, $(DUMPS_REASONED))
+	echo "Merging the following files:" $^
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
