@@ -30,12 +30,12 @@ while true; do
 
     # Debug output: print the command about to be run
     echo "Running robot query with the following command:"
-    echo "robot query -i \"$INPUT_ONTOLOGY\" --query \"$TEMP_SPARQL\" -o \"$CHUNK_OUTPUT\""
+    echo "robot query --input \"$INPUT_ONTOLOGY\" --query \"$TEMP_SPARQL\" --output \"$CHUNK_OUTPUT\""
     echo "$TEMP_SPARQL:"
     cat -n "$TEMP_SPARQL"
 
     # Run the query with the current OFFSET and CHUNK_SIZE
-    robot query -i "$INPUT_ONTOLOGY" --query "$TEMP_SPARQL.sparql" -o "$CHUNK_OUTPUT" -vvv
+    robot query --input "$INPUT_ONTOLOGY" --query "$TEMP_SPARQL" --output "$CHUNK_OUTPUT"
 
     # Check if the chunk output file exists and is not empty
     if [ ! -s "$CHUNK_OUTPUT" ]; then
