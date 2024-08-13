@@ -73,24 +73,44 @@ $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 # 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_merged.owl
+	echo "Target: $@"
+	echo "Input file: $<"
+	echo "SPARQL query: $(SPARQL_DIR)/constructReasoned_$*.sparql"
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER) || { echo "Error: ROBOT query failed for $@"; exit 1; }
+	@if [ ! -f $@ ]; then echo "Error: Output file $@ was not created"; exit 1; fi
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+	echo "Finished processing $@"
 
 $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl: $(RAW_DUMPS_DIR)/connectome_merged.owl
+	echo "Target: $@"
+	echo "Input file: $<"
+	echo "SPARQL query: $(SPARQL_DIR)/constructReasoned_$*.sparql"
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER) || { echo "Error: ROBOT query failed for $@"; exit 1; }
+	@if [ ! -f $@ ]; then echo "Error: Output file $@ was not created"; exit 1; fi
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+	echo "Finished processing $@"
 
 $(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl: $(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_merged.owl
+	echo "Target: $@"
+	echo "Input file: $<"
+	echo "SPARQL query: $(SPARQL_DIR)/constructReasoned_$*.sparql"
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER) || { echo "Error: ROBOT query failed for $@"; exit 1; }
+	@if [ ! -f $@ ]; then echo "Error: Output file $@ was not created"; exit 1; fi
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+	echo "Finished processing $@"
 
 $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl: $(RAW_DUMPS_DIR)/VFB_EPseq_exp_merged.owl
+	echo "Target: $@"
+	echo "Input file: $<"
+	echo "SPARQL query: $(SPARQL_DIR)/constructReasoned_$*.sparql"
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER) || { echo "Error: ROBOT query failed for $@"; exit 1; }
+	@if [ ! -f $@ ]; then echo "Error: Output file $@ was not created"; exit 1; fi
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+	echo "Finished processing $@"
 
 $(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl, $(DUMPS_REASONED))
 	echo "Merging the following files:" $^
