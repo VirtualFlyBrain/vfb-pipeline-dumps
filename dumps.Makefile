@@ -134,6 +134,26 @@ $(CSV_IMPORTS):
 # 	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
 # 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
+$(RAW_DUMPS_DIR)/construct_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR))
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/connectome_merged.owl: $(RAW_DUMPS_DIR)/connectome_*.owl
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_merged.owl: $(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_*
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/VFB_EPseq_exp_merged.owl: $(RAW_DUMPS_DIR)/VFB_EPseq_exp_*
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
 $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_merged.owl
 	echo "Target: $@"
 	echo "Input file: $<"
@@ -183,26 +203,6 @@ $(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/co
 # 	echo $@ started: `date +%s` >> $(LOG_FILE)
 # 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 # 	echo $@ ended: `date +%s` >> $(LOG_FILE)
-
-$(RAW_DUMPS_DIR)/construct_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR))
-	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
-	echo $@ ended: `date +%s` >> $(LOG_FILE)
-
-$(RAW_DUMPS_DIR)/connectome_merged.owl: connectome_*.owl
-	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
-	echo $@ ended: `date +%s` >> $(LOG_FILE)
-
-$(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_merged.owl: VFB_scRNAseq_exp_*
-	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
-	echo $@ ended: `date +%s` >> $(LOG_FILE)
-
-$(RAW_DUMPS_DIR)/VFB_EPseq_exp_merged.owl: VFB_EPseq_exp_*
-	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
-	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the obographs.json file, which is used to generate the SOLR index.
 $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl
