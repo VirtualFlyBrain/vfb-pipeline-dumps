@@ -24,7 +24,7 @@ while true; do
     CHUNK_OUTPUT="${TEMP_DIR}/chunk_${OFFSET}.owl"
 
     # Create a temporary SPARQL file with LIMIT and OFFSET
-    TEMP_SPARQL=$(mktemp)
+    TEMP_SPARQL=$(mktemp).sparql
     cat "$SPARQL_QUERY_FILE" > "$TEMP_SPARQL"
     echo "LIMIT $CHUNK_SIZE OFFSET $OFFSET" >> "$TEMP_SPARQL"
 
@@ -35,7 +35,7 @@ while true; do
     cat -n "$TEMP_SPARQL"
 
     # Run the query with the current OFFSET and CHUNK_SIZE
-    robot query -i "$INPUT_ONTOLOGY" --query "$TEMP_SPARQL" -o "$CHUNK_OUTPUT" -vvv
+    robot query -i "$INPUT_ONTOLOGY" --query "$TEMP_SPARQL.sparql" -o "$CHUNK_OUTPUT" -vvv
 
     # Check if the chunk output file exists and is not empty
     if [ ! -s "$CHUNK_OUTPUT" ]; then
