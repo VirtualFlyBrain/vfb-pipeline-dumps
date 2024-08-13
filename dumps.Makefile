@@ -44,7 +44,7 @@ ifndef UNIQUE_FACETS_ANNOTATION
 endif
 
 # The default target that generates all necessary OWL files.
-all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl .WAIT $(FINAL_DUMPS_DIR)/solr.json .WAIT $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
+all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
 
 # Declares a phony target to remove embargoed data.
 .PHONY: remove_embargoed_data
@@ -55,8 +55,8 @@ remove_embargoed_data: $(SPARQL_DIR)/delete_*.sparql
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # This target constructs a TTL file from the SPARQL query specified in the construct_*.sparql file and downloads it from the SPARQL endpoint.
-$(RAW_DUMPS_DIR)/%.ttl: $(SPARQL_DIR)/construct_%.sparql
-	curl -G --data-urlencode "query=`cat $<`" $(SPARQL_ENDPOINT) -o $@
+$(RAW_DUMPS_DIR)/%.ttl:
+	curl -G --data-urlencode "query=`cat $(SPARQL_DIR)/construct_$*.sparql`" $(SPARQL_ENDPOINT) -o $@
 
 # This target constructs an OWL file from the TTL file specified in the prerequisite and adds an ontology IRI, then converts it to the OWL format.
 $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
@@ -67,14 +67,28 @@ $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # This target constructs an OWL file from the SPARQL query specified in the constructReasoned_*.sparql file via querying it in the reasoned ontology.
-$(RAW_DUMPS_DIR)/constructReasoned_%.owl: $(RAW_DUMPS_DIR)/reasoned.owl $(SPARQL_DIR)/constructReasoned_%.sparql
-	echo "Starting processing for $@"
-	echo "Running script with the following command:"
-	echo "$(SCRIPTS_DIR)/run_sparql_in_chunks.sh $(SPARQL_DIR)/constructReasoned_$*.sparql $@ 1000 $(RAW_DUMPS_DIR)/reasoned.owl $(STDOUT_FILTER)"
+# $(RAW_DUMPS_DIR)/constructReasoned_%.owl: $(RAW_DUMPS_DIR)/reasoned.owl
+# 	echo $@ started: `date +%s` >> $(LOG_FILE)
+# 	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+# 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl: $(RAW_DUMPS_DIR)/connectome_merged.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(SCRIPTS_DIR)/run_sparql_in_chunks.sh $(SPARQL_DIR)/constructReasoned_$*.sparql $@ 1000 $(RAW_DUMPS_DIR)/reasoned.owl $(STDOUT_FILTER)
-	if [ ! -f "$@" ]; then echo "Error: $@ was not created."; exit 1; fi
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl: $(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_merged.owl
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl: $(RAW_DUMPS_DIR)/VFB_EPseq_exp_merged.owl
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl, $(DUMPS_REASONED))
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
 # reduces the ontology, annotates it, and saves it to disk.
@@ -125,39 +139,54 @@ DUMPS_OWLERY=all
 # Query file format should be 'constructReasoned_name.sparql'
 DUMPS_REASONED=has_subClass
 
-# Ontologies for side-loading
+# ontologies for side-loading
 PDB_EXTERNAL_ONTS=connectome_*.owl VFB_scRNAseq_exp_* VFB_EPseq_exp_*
 
 # Specifies the location where the CSV import files are stored.
-CSV_IMPORTS=$(FINAL_DUMPS_DIR)/csv_imports
+CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
 
 # Specifies the JAR file used to convert OWL files to CSV format for import into Neo4j.
-OWL2NEOCSV=$(SCRIPTS_DIR)/owl2neo4jcsv.jar
+OWL2NEOCSV="$(SCRIPTS_DIR)/owl2neo4jcsv.jar"
 
 # Creates the CSV_IMPORTS directory.
 $(CSV_IMPORTS):
 	mkdir -p $@
 
-# Reasoned and merged intermediate product to be used by 'constructReasoned_name.sparql' queries.
-$(RAW_DUMPS_DIR)/reasoned.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
+# reasoned and merged intermediate product to be used by 'constructReasoned_name.sparql' queries
+# $(RAW_DUMPS_DIR)/reasoned.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
+# 	echo $@ started: `date +%s` >> $(LOG_FILE)
+# 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+# 	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/connectome_merged.owl: connectome_*.owl
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_merged.owl: VFB_scRNAseq_exp_*
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/VFB_EPseq_exp_merged.owl: VFB_EPseq_exp_*
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the obographs.json file, which is used to generate the SOLR index.
-$(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_%.owl, $(DUMPS_REASONED)) $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl
+$(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) merge $(patsubst %, -i %, $^) convert -f json -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the PDB.owl file, which is used to generate the PDB.
-$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_%.owl, $(DUMPS_REASONED)) $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl
+$(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_PDB)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) -vvv merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the owlery.owl file, which is used for other purposes.
-$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_%.owl, $(DUMPS_REASONED))
+$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
 	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
@@ -170,7 +199,7 @@ $(RAW_DUMPS_DIR)/side_loads.owl: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNA
 
 # Generates the side loading CSV files for the PDB
 pdb_sideloads: $(RAW_DUMPS_DIR)/side_loads.owl | $(CSV_IMPORTS)
-	echo $@ started: `date +%s` >> $(LOG_FILE)
+        echo $@ started: `date +%s` >> $(LOG_FILE)
 	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
