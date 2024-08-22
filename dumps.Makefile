@@ -230,7 +230,7 @@ $(RAW_DUMPS_DIR)/side_loads.owl: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNA
 
 # Generates the side loading CSV files for the PDB
 pdb_sideloads: $(RAW_DUMPS_DIR)/side_loads.owl | $(CSV_IMPORTS)
-        echo $@ started: `date +%s` >> $(LOG_FILE)
+	echo $@ started: `date +%s` >> $(LOG_FILE)
 	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) "side_load"
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
