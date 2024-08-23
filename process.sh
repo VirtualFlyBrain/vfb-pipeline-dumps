@@ -27,7 +27,7 @@ date
 
 echo '** Executing pipeline.. **' | tee ${OUTDIR}/dumps.log
 
-{ /usr/bin/time -v make -d -j2 all ; } 2>&1 | tee -a ${OUTDIR}/dumps.log
+{ /usr/bin/time -v make -d -j10 all ; } 2>&1 | tee -a ${OUTDIR}/dumps.log
 
 echo "End: vfb-pipeline-dumps"
 echo "VFBTIME:"
