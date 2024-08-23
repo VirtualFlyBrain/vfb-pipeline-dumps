@@ -178,7 +178,7 @@ pdb_sideloads: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)) | $(CSV_I
 		echo "Processing side loading file $${file}"; \
 		base=$$(basename $$file .owl); \
 		var_part=$${base#*_}; \
-		java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; \
+		java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; \
 	done \
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
