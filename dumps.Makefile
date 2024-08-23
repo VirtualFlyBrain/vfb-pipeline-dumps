@@ -153,12 +153,6 @@ $(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/co
 	echo "Merging the following files:" $^
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
-# reasoned and merged intermediate product to be used by 'constructReasoned_name.sparql' queries
-# $(RAW_DUMPS_DIR)/reasoned.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
-# 	echo $@ started: `date +%s` >> $(LOG_FILE)
-# 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
-# 	echo $@ ended: `date +%s` >> $(LOG_FILE)
-
 # Generates the obographs.json file, which is used to generate the SOLR index.
 $(FINAL_DUMPS_DIR)/obographs.json: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_SOLR)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl $(RAW_DUMPS_DIR)/inferred_annotation.owl $(RAW_DUMPS_DIR)/unique_facets.owl
 	echo $@ started: `date +%s` >> $(LOG_FILE)
