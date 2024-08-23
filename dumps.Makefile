@@ -222,16 +222,15 @@ $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $
 	$(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER)
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
-# Merge external ontologies to directly side load to PDB
-$(RAW_DUMPS_DIR)/side_loads.owl: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS))
-	echo $@ started: `date +%s` >> $(LOG_FILE)
-	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
-	echo $@ ended: `date +%s` >> $(LOG_FILE)
-
 # Generates the side loading CSV files for the PDB
-pdb_sideloads: $(RAW_DUMPS_DIR)/side_loads.owl | $(CSV_IMPORTS)
+pdb_sideloads: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)) | $(CSV_IMPORTS)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) "side_load"
+	for file in $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)); do \
+		echo "Processing side loading file $${file}"; \
+		base=$$(basename $$file .owl); \
+		var_part=$${base#*_}; \
+		java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; \
+	done \
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the CSV files for the PDB and imports them into Neo4j.
