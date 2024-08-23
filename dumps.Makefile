@@ -149,7 +149,7 @@ $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_m
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 	echo "Finished processing $@"
 
-$(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_connectome_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_scRNAseq_exp_%.owl, $(DUMPS_REASONED)) $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_VFB_EPseq_exp_%.owl, $(DUMPS_REASONED))
+$(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED))
 	echo "Merging the following files:" $^
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
