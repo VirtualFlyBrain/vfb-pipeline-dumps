@@ -116,7 +116,11 @@ DUMPS_OWLERY=all
 DUMPS_REASONED=has_subClass
 
 # ontologies for side-loading
-PDB_EXTERNAL_ONTS=connectome_*.owl VFB_scRNAseq_exp_*.owl VFB_EPseq_exp_*.owl
+PDB_EXTERNAL_ONTS=$(wildcard connectome_*.owl VFB_scRNAseq_exp_*.owl VFB_EPseq_exp_*.owl)
+
+# Debugging: Print the value of PDB_EXTERNAL_ONTS to ensure it's being set correctly
+print_pdb_external_onts:
+	echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
 
 # Specifies the location where the CSV import files are stored.
 CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
@@ -172,15 +176,15 @@ $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the side loading CSV files for the PDB
-pdb_sideloads: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)) | $(CSV_IMPORTS)
-	echo $@ started: `date +%s` >> $(LOG_FILE)
+pdb_sideloads: print_pdb_external_onts $(PDB_EXTERNAL_ONTS) | $(CSV_IMPORTS)
+	echo "$@ started: $(date +%s)" >> $(LOG_FILE)
 	for file in $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)); do \
 		echo "Processing side loading file $${file}"; \
 		base=$$(basename $$file .owl); \
 		var_part=$${base#*_}; \
 		java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; \
 	done \
-	echo $@ ended: `date +%s` >> $(LOG_FILE)
+	echo "$@ ended: $(date +%s)" >> $(LOG_FILE)
 
 # Generates the CSV files for the PDB and imports them into Neo4j.
 pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl pdb_sideloads | $(CSV_IMPORTS)
