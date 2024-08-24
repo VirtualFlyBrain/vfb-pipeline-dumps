@@ -137,10 +137,9 @@ $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_m
 SIDE_LOADING_ONTS := $(wildcard $(addprefix $(RAW_DUMPS_DIR)/, $(PDB_EXTERNAL_ONTS)))
 QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOADING_ONTS), $(addprefix $(FINAL_DUMPS_DIR)/, $(basename $(notdir $(file)))_$(query).owl)))
 
+# Add new goal for each new query in DUMPS_REASONED
 $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
-	@echo "Processing: $< To Create $@"
-	@set -x; if grep -q "owl:Class" $<; then echo "Class found in $<"; $(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER)); else echo "No owl:Class found in $<, created an empty $@"; touch $@; fi
-
+	$(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER))
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
 	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER))
