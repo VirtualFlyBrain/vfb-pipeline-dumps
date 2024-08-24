@@ -189,9 +189,9 @@ $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the side loading CSV files for the PDB
-pdb_sideloads: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)) | $(CSV_IMPORTS)
+pdb_sideloads: $(SIDE_LOADING_ONTS) | $(CSV_IMPORTS)
 	echo $@ started: `date +%s` >> $(LOG_FILE)
-	for file in $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)); do \
+	for file in $(SIDE_LOADING_ONTS); do \
 		echo "Processing side loading file $${file}"; \
 		base=$$(basename $$file .owl); \
 		var_part=$${base#*_}; \
