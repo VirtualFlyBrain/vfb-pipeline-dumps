@@ -138,14 +138,14 @@ SIDE_LOADING_ONTS := $(wildcard $(addprefix $(RAW_DUMPS_DIR)/, $(PDB_EXTERNAL_ON
 QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOADING_ONTS), $(addprefix $(FINAL_DUMPS_DIR)/, $(basename $(notdir $(file)))_$(query).owl)))
 
 $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
-	@echo "Processing: $<"
+	@echo "Processing: $< To Create $@"
 	@set -x; \
 	if grep -q "owl:Class" $<; then \
 	    echo "Class found in $<"; \
 	    $(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER)); \
 	else \
+		echo "No owl:Class found in $<, created an empty $@"; \
 	    touch $@; \
-	    echo "No owl:Class found in $<, created an empty $@"; \
 	fi
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
