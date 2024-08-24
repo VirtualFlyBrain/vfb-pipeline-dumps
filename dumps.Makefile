@@ -144,7 +144,7 @@ $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/cons
 	    echo "Class found in $<"; \
 	    $(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER)); \
 	else \
-		echo "No owl:Class found in $<, created an empty $@"; \
+	    echo "No owl:Class found in $<, created an empty $@"; \
 	    touch $@; \
 	fi
 
