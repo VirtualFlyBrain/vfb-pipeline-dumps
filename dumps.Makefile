@@ -44,15 +44,7 @@ ifndef UNIQUE_FACETS_ANNOTATION
 endif
 
 # The default target that generates all necessary OWL files.
-all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
-
-# Declares a phony target to remove embargoed data.
-.PHONY: remove_embargoed_data
-# This target deletes the data that is embargoed by executing all of the delete_*.sparql files in the SPARQL directory.
-remove_embargoed_data: $(SPARQL_DIR)/delete_*.sparql
-	echo $@ started: `date +%s` > $(LOG_FILE)
-	$(foreach f,$^,curl -X POST -H "Content-Type:application/x-www-form-urlencoded" -d "update=`cat $(f)`" $(SPARQL_ENDPOINT)/statements)
-	echo $@ ended: `date +%s` >> $(LOG_FILE)
+all: checkenv $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
 
 # This target constructs a TTL file from the SPARQL query specified in the construct_*.sparql file and downloads it from the SPARQL endpoint.
 $(RAW_DUMPS_DIR)/%.ttl:
