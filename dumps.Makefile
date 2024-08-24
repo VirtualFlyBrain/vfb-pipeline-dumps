@@ -176,15 +176,15 @@ $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the side loading CSV files for the PDB
-pdb_sideloads: print_pdb_external_onts $(PDB_EXTERNAL_ONTS) | $(CSV_IMPORTS)
-	echo "$@ started: $(date +%s)" >> $(LOG_FILE)
-	for file in $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)); do \
+pdb_sideloads: $(PDB_EXTERNAL_ONTS) | $(CSV_IMPORTS)
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	for file in $(PDB_EXTERNAL_ONTS); do \
 		echo "Processing side loading file $${file}"; \
 		base=$$(basename $$file .owl); \
 		var_part=$${base#*_}; \
 		java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; \
-	done \
-	echo "$@ ended: $(date +%s)" >> $(LOG_FILE)
+	done
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
 
 # Generates the CSV files for the PDB and imports them into Neo4j.
 pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl pdb_sideloads | $(CSV_IMPORTS)
