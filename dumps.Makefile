@@ -116,7 +116,7 @@ DUMPS_OWLERY=all
 DUMPS_REASONED=has_subClass
 
 # ontologies for side-loading
-PDB_EXTERNAL_ONTS=$(wildcard connectome_*.owl VFB_scRNAseq_exp_*.owl VFB_EPseq_exp_*.owl)
+PDB_EXTERNAL_ONTS := $(wildcard $(RAW_DUMPS_DIR)/connectome_*.owl $(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_*.owl $(RAW_DUMPS_DIR)/VFB_EPseq_exp_*.owl)
 
 # Debugging: Print the value of PDB_EXTERNAL_ONTS to ensure it's being set correctly
 print_pdb_external_onts:
