@@ -7,9 +7,6 @@ ROBOT=robot
 # Specifies the name of the log file used to record the time each target starts and ends.
 LOG_FILE=vfb_pipeline_dumps.log
 
-# Include a .env file if it exists for configuration (modular configuration).
--include .env
-
 # Function to log start and end times, as well as errors
 define log
     @echo $1 started: `date +%s` >> $(LOG_FILE)
