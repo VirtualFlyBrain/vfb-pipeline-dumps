@@ -140,7 +140,12 @@ QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOAD
 # Add new goal for each new query in DUMPS_REASONED
 $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
 	@echo "Processing: $<"
-	$(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER))
+	@if $(ROBOT) query -i $< --select "SELECT ?class WHERE { ?class a owl:Class } LIMIT 1" --output /dev/null; then \
+	    $(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER)); \
+	else \
+	    touch $@; \
+	    echo "No classes found in $<, created an empty $@"; \
+	fi
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
 	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER))
