@@ -140,6 +140,7 @@ QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOAD
 $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
 	@echo "Processing: $< To Create $@"
 	set -x; \
+	echo "Checking if owl:Class exists in $<"; \
 	if grep -q "owl:Class" $<; then \
 	    echo "Class found in $<"; \
 	    $(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER)); \
