@@ -149,7 +149,24 @@ $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_m
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
 	echo "Finished processing $@"
 
-$(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED))
+# Run DUMPS_REASONED construct queries on PDB_EXTERNAL_ONTS
+SIDE_LOADING_ONTS := $(wildcard $(addprefix $(RAW_DUMPS_DIR)/, $(PDB_EXTERNAL_ONTS)))
+QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOADING_ONTS), $(basename $(notdir $(file)))_$(query).owl))
+
+# Add new goal for each new query in DUMPS_REASONED
+%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	$(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER) || { echo "Error: ROBOT query failed for $@"; exit 1; }
+	@if [ ! -f $@ ]; then echo "Error: Output file $@ was not created"; exit 1; fi
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
+	echo $@ started: `date +%s` >> $(LOG_FILE)
+	echo "Expected outputs: $(QUERY_OUTPUTS)"
+	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
+	echo $@ ended: `date +%s` >> $(LOG_FILE)
+
+$(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED)) $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl
 	echo "Merging the following files:" $^
 	$(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER)
 
@@ -178,6 +195,7 @@ pdb_sideloads: $(patsubst %, $(RAW_DUMPS_DIR)/%, $(PDB_EXTERNAL_ONTS)) | $(CSV_I
 		echo "Processing side loading file $${file}"; \
 		base=$$(basename $$file .owl); \
 		var_part=$${base#*_}; \
+		echo "-$${var_part}- var_part"; \
 		java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; \
 	done \
 	echo $@ ended: `date +%s` >> $(LOG_FILE)
