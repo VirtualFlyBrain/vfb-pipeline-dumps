@@ -141,7 +141,7 @@ SIDE_LOADING_ONTS := $(wildcard $(addprefix $(RAW_DUMPS_DIR)/, $(PDB_EXTERNAL_ON
 QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOADING_ONTS), $(basename $(notdir $(file)))_$(query).owl))
 
 # Add new goal for each new query in DUMPS_REASONED
-%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
+$(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
 	$(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER))
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
