@@ -111,7 +111,11 @@ DUMPS_OWLERY=all
 DUMPS_REASONED=has_subClass
 
 # ontologies for side-loading
-PDB_EXTERNAL_ONTS=connectome_*.owl VFB_scRNAseq_exp_*.owl VFB_EPseq_exp_*.owl
+PDB_EXTERNAL_ONTS := $(wildcard $(RAW_DUMPS_DIR)/connectome_*.owl $(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_*.owl $(RAW_DUMPS_DIR)/VFB_EPseq_exp_*.owl)
+
+# Debugging: Print the value of PDB_EXTERNAL_ONTS to ensure it's being set correctly
+print_pdb_external_onts:
+	echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
 
 # Specifies the location where the CSV import files are stored.
 CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
