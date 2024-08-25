@@ -9,8 +9,9 @@ ENV VALIDATESHEX=true
 ENV VALIDATESHACL=true
 ENV SPARQL_ENDPOINT=http://ts.p2.virtualflybrain.org/rdf4j-server/repositories/vfb
 ENV VFB_CONFIG=http://virtualflybrain.org/config/neo4j2owl-config.yaml
+ENV CORES=4
 
-# This is appended to all ROBOT commands. It basically filters out all lines in stdout that match the grep.
+# This is appended to all ROBOT commands. It filters out all lines in stdout that match the grep.
 
 ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 
