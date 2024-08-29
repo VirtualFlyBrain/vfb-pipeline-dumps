@@ -116,7 +116,7 @@ PDB_EXTERNAL_ONTS := $(wildcard $(RAW_DUMPS_DIR)/connectome_*.owl $(RAW_DUMPS_DI
 
 # Debugging: Print the value of PDB_EXTERNAL_ONTS to ensure it's being set correctly
 print_pdb_external_onts:
-	echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
+	@echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
 
 # Specifies the location where the CSV import files are stored.
 CSV_IMPORTS="$(FINAL_DUMPS_DIR)/csv_imports"
@@ -143,7 +143,7 @@ SIDE_LOADING_ONTS := $(wildcard $(addprefix $(RAW_DUMPS_DIR)/, $(PDB_EXTERNAL_ON
 QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOADING_ONTS), $(addprefix $(FINAL_DUMPS_DIR)/, $(basename $(notdir $(file)))_$(query).owl)))
 
 print_query_outputs:
-    @echo "QUERY_OUTPUTS is: $(QUERY_OUTPUTS)"
+	@echo "QUERY_OUTPUTS is: $(QUERY_OUTPUTS)"
 
 # Add new goal for each new query in DUMPS_REASONED
 $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
