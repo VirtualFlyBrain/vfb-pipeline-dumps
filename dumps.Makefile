@@ -150,7 +150,7 @@ $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/cons
 	$(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER))
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
-	$(call log, $@, $(ROBOT) -vvv merge $(patsubst %, -i %, $(QUERY_OUTPUTS)) -o $@ $(STDOUT_FILTER))
+	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $(QUERY_OUTPUTS)) -o $@ $(STDOUT_FILTER))
 
 $(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED)) $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl
 	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER))
