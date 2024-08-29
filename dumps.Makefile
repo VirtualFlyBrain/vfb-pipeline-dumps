@@ -54,7 +54,7 @@ ifndef UNIQUE_FACETS_ANNOTATION
 endif
 
 # The default target that generates all necessary OWL files.
-all: checkenv remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
+all: checkenv print_pdb_external_onts print_query_outputs remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
 
 # Declares a phony target to remove embargoed data.
 .PHONY: remove_embargoed_data
@@ -113,8 +113,6 @@ DUMPS_REASONED=has_subClass
 # ontologies for side-loading
 PDB_EXTERNAL_ONTS := $(wildcard $(RAW_DUMPS_DIR)/connectome_*.owl $(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_*.owl $(RAW_DUMPS_DIR)/VFB_EPseq_exp_*.owl)
 
-print_pdb_external_onts:
-    @echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
 
 # Debugging: Print the value of PDB_EXTERNAL_ONTS to ensure it's being set correctly
 print_pdb_external_onts:
