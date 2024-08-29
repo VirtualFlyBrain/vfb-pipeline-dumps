@@ -151,9 +151,9 @@ $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/cons
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
 	ifeq ($(strip $(QUERY_OUTPUTS)),)
-        $(error No input files found for constructReasoned_construct_side_loading.owl)
 		@echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
 		@echo "QUERY_OUTPUTS is: $(QUERY_OUTPUTS)"
+        $(error No input files found for constructReasoned_construct_side_loading.owl)
     else
         $(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $(QUERY_OUTPUTS)) -o $@ $(STDOUT_FILTER))
     endif
