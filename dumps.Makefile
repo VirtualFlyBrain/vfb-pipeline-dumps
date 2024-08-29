@@ -139,8 +139,7 @@ $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_m
 	$(call log, $@, $(ROBOT) query -i $< --query $(SPARQL_DIR)/constructReasoned_$*.sparql $@ $(STDOUT_FILTER))
 
 # Run DUMPS_REASONED construct queries on PDB_EXTERNAL_ONTS
-SIDE_LOADING_ONTS := $(wildcard $(addprefix $(RAW_DUMPS_DIR)/, $(PDB_EXTERNAL_ONTS)))
-QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOADING_ONTS), $(addprefix $(FINAL_DUMPS_DIR)/, $(basename $(notdir $(file)))_$(query).owl)))
+QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(PDB_EXTERNAL_ONTS), $(addprefix $(FINAL_DUMPS_DIR)/, $(basename $(notdir $(file)))_$(query).owl)))
 
 print_query_outputs:
 	@echo "QUERY_OUTPUTS is: $(QUERY_OUTPUTS)"
@@ -153,6 +152,7 @@ $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
 	ifeq ($(strip $(QUERY_OUTPUTS)),)
 		echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
 		echo "QUERY_OUTPUTS is: $(QUERY_OUTPUTS)"
+		$(error No input files found for constructReasoned_construct_side_loading.owl)
 	else
 		$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $(QUERY_OUTPUTS)) -o $@ $(STDOUT_FILTER))
 	endif
@@ -173,8 +173,8 @@ $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $
 	$(call log, $@, $(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER))
 
 # Generates the side loading CSV files for the PDB
-pdb_sideloads: $(SIDE_LOADING_ONTS) | $(CSV_IMPORTS)
-	$(call log, $@, for file in $(SIDE_LOADING_ONTS); do base=$$(basename $$file .owl); var_part=$${base#*_}; java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; done)
+pdb_sideloads: $(PDB_EXTERNAL_ONTS) | $(CSV_IMPORTS)
+	$(call log, $@, for file in $(PDB_EXTERNAL_ONTS); do base=$$(basename $$file .owl); var_part=$${base#*_}; java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; done)
 
 # Generates the CSV files for the PDB and imports them into Neo4j.
 pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
