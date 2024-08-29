@@ -113,6 +113,9 @@ DUMPS_REASONED=has_subClass
 # ontologies for side-loading
 PDB_EXTERNAL_ONTS := $(wildcard $(RAW_DUMPS_DIR)/connectome_*.owl $(RAW_DUMPS_DIR)/VFB_scRNAseq_exp_*.owl $(RAW_DUMPS_DIR)/VFB_EPseq_exp_*.owl)
 
+print_pdb_external_onts:
+    @echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
+
 # Debugging: Print the value of PDB_EXTERNAL_ONTS to ensure it's being set correctly
 print_pdb_external_onts:
 	echo "PDB_EXTERNAL_ONTS is: $(PDB_EXTERNAL_ONTS)"
@@ -141,12 +144,19 @@ $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl: $(RAW_DUMPS_DIR)/construct_m
 SIDE_LOADING_ONTS := $(wildcard $(addprefix $(RAW_DUMPS_DIR)/, $(PDB_EXTERNAL_ONTS)))
 QUERY_OUTPUTS := $(foreach query, $(DUMPS_REASONED), $(foreach file, $(SIDE_LOADING_ONTS), $(addprefix $(FINAL_DUMPS_DIR)/, $(basename $(notdir $(file)))_$(query).owl)))
 
+print_query_outputs:
+    @echo "QUERY_OUTPUTS is: $(QUERY_OUTPUTS)"
+
 # Add new goal for each new query in DUMPS_REASONED
 $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
 	$(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER))
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
-	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER))
+	ifeq ($(strip $(QUERY_OUTPUTS)),)
+        $(error No input files found for constructReasoned_construct_side_loading.owl)
+    else
+        $(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $(QUERY_OUTPUTS)) -o $@ $(STDOUT_FILTER))
+    endif
 
 $(RAW_DUMPS_DIR)/constructReasoned_merged.owl: $(patsubst %, $(RAW_DUMPS_DIR)/constructReasoned_construct_%.owl, $(DUMPS_REASONED)) $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl
 	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER))
