@@ -22,6 +22,12 @@ mkdir -p $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
 find $FINAL_DUMPS_DIR -type f -delete
 find $RAW_DUMPS_DIR -type f -delete
 
+for file in $FINAL_DUMPS_DIR/*; do
+    [ -f "$file" ] || break
+    echo "Touching $file"
+    touch $file
+done
+
 echo "VFBTIME:"
 date
 
