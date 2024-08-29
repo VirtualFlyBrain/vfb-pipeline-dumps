@@ -27,6 +27,9 @@ date
 
 echo '** Executing pipeline.. **' | tee ${OUTDIR}/dumps.log
 
+make print_pdb_external_onts
+make print_query_outputs
+
 { /usr/bin/time -v make -d -j${CORES} all ; } 2>&1 | tee -a ${OUTDIR}/dumps.log
 
 echo "End: vfb-pipeline-dumps"
