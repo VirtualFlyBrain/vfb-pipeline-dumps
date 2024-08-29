@@ -171,7 +171,7 @@ pdb_sideloads: $(PDB_EXTERNAL_ONTS) | $(CSV_IMPORTS)
 	$(call log, $@, for file in $(PDB_EXTERNAL_ONTS); do base=$$(basename $$file .owl); var_part=$${base#*_}; java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; done)
 
 # Generates the CSV files for the PDB and imports them into Neo4j.
-pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl pdb_sideloads | $(CSV_IMPORTS)
+pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
 	$(call log, $@, java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $< "$(VFB_CONFIG)" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION))
 	@echo "=== Print Timer Logs ==="
 	@cat $(LOG_FILE)
