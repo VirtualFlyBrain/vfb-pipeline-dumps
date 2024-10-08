@@ -169,7 +169,7 @@ $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $
 
 # Generates the side loading CSV files for the PDB
 pdb_sideloads: $(SIDE_LOADING_ONTS) | $(CSV_IMPORTS)
-	$(call log, $@, for file in $(SIDE_LOADING_ONTS); do base=$$(basename $$file .owl); var_part=$${base#*_}; java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part}; done)
+	$(call log, $@, for file in $(SIDE_LOADING_ONTS); do base=$$(basename $$file .owl); var_part=$${base#*_}; java $(ROBOT_ARGS) -jar $(OWL2NEOCSV) $$file "none" $(CSV_IMPORTS) false $(INFER_ANNOTATE_RELATION) $${var_part} only_edges; done)
 
 # Generates the CSV files for the PDB and imports them into Neo4j.
 pdb_csvs: $(FINAL_DUMPS_DIR)/pdb.owl | $(CSV_IMPORTS)
