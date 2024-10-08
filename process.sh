@@ -19,8 +19,8 @@ export SCRIPTS_DIR=$WORKSPACE/scripts
 echo "** Creating temporary directories.. **"
 cd ${WORKSPACE}
 mkdir -p $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
-# find $FINAL_DUMPS_DIR -type f -delete
-# find $RAW_DUMPS_DIR -type f -delete
+find $FINAL_DUMPS_DIR -type f -delete
+find $RAW_DUMPS_DIR -type f -delete
 
 # for file in $FINAL_DUMPS_DIR/*.owl; do
 #     [ -f "$file" ] || break
