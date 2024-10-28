@@ -22,6 +22,11 @@ mkdir -p $FINAL_DUMPS_DIR $RAW_DUMPS_DIR
 find $FINAL_DUMPS_DIR -type f -delete
 find $RAW_DUMPS_DIR -type f -delete
 
+cd $RAW_DUMPS_DIR
+ln -sv ../connectome_*.owl ./
+cd ${WORKSPACE}
+
+
 # for file in $FINAL_DUMPS_DIR/*.owl; do
 #     [ -f "$file" ] || break
 #     echo "Touching $file"
