@@ -1,0 +1,9 @@
+PREFIX oio: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'OpticLobe' . }
+WHERE {
+  ?x
+  oio:hasDbXref
+  VFBd:neuprint_JRC_OpticLobe_v1_0_1" .
+}

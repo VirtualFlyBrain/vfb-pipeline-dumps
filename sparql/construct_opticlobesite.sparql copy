@@ -1,0 +1,4 @@
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { VFBd:neuprint_JRC_OpticLobe_v1_0_1" <http://n2o.neo/property/nodeLabel> 'OpticLobe' . }
+WHERE {}

@@ -1,0 +1,4 @@
+PREFIX VFBd: <http://virtualflybrain.org/reports/>
+
+CONSTRUCT { VFBd:neuprint_JRC_Manc_1_2_1" <http://n2o.neo/property/nodeLabel> 'MANC' . }
+WHERE {}
