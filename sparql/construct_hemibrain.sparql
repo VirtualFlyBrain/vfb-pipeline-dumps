@@ -5,5 +5,5 @@ CONSTRUCT { ?x <http://n2o.neo/property/nodeLabel> 'Hemibrain' . }
 WHERE {
   ?x
   oio:hasDbXref
-  VFBd:neuprint_JRC_Hemibrain_1point1 .
+  VFBd:neuprint_JRC_Hemibrain_1point2point1 .
 }
