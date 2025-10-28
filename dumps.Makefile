@@ -17,6 +17,8 @@ endef
 # Suggest parallel execution in comments
 # To speed up the build process, you can run make with parallel jobs: `make -j 4 all`
 
+.PRECIOUS: $(RAW_DUMPS_DIR)/%.ttl
+
 # Declares a phony target to check that all necessary environment variables are set.
 .PHONY: checkenv
 
