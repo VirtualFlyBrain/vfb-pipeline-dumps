@@ -56,7 +56,7 @@ COPY /scripts $WORKSPACE/scripts
 
 ###### NEO4J2OWL ######
 ENV NEO4J2OWL_VERSION 1.2.3.9-PRE
-ARG OWL2NEO4J_JAR=https://github.com/VirtualFlyBrain/neo4j2owl/releases/download/$NEO4J2OWL_VERSION/owl2neo4jcsv.jar
+ARG OWL2NEO4J_JAR=https://github.com/OBASKTools/pipeline-dumps/raw/refs/heads/main/scripts/owl2neo4jcsv.jar
 ENV OWL2NEO4J_JAR ${OWL2NEO4J_JAR}
 RUN wget $OWL2NEO4J_JAR -O $WORKSPACE/scripts/owl2neo4jcsv.jar && \
     chmod +x $WORKSPACE/scripts/owl2neo4jcsv.jar
