@@ -26,6 +26,6 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: virtualflybrain/vfb-pipeline-dumps:${GITHUB_REF#refs/heads/}
+        tags: virtualflybrain/vfb-pipeline-dumps:${{ github.ref_name }}
 
     
