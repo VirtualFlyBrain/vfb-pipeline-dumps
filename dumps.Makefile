@@ -166,8 +166,8 @@ $(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DU
 	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) -o $@ $(STDOUT_FILTER))
 
 # Generates the owlery.owl file, which is used for other purposes.
-$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl
-	$(call log, $@, $(ROBOT) filter -i $< --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER))
+$(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl $(SIDE_LOADING_ONTS)
+	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) filter --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER))
 
 # Generates the side loading CSV files for the PDB
 pdb_sideloads: $(SIDE_LOADING_ONTS) | $(CSV_IMPORTS)
