@@ -149,7 +149,7 @@ print_query_outputs:
 
 # Add new goal for each new query in DUMPS_REASONED
 $(FINAL_DUMPS_DIR)/%_has_subClass.owl: $(RAW_DUMPS_DIR)/%.owl $(SPARQL_DIR)/constructReasoned_has_subClass.sparql
-	$(call log, $@, $(ROBOT) query -i $< --query $(word 2,$^) $@ $(STDOUT_FILTER))
+	$(call log, $@, python3 $(SCRIPTS_DIR)/clean_owl.py $< $<.clean && $(ROBOT) query -i $<.clean --query $(word 2,$^) $@ $(STDOUT_FILTER))
 
 $(RAW_DUMPS_DIR)/constructReasoned_construct_side_loading.owl: $(QUERY_OUTPUTS)
 	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $(QUERY_OUTPUTS)) -o $@ $(STDOUT_FILTER))
