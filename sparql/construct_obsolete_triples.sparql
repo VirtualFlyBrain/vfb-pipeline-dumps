@@ -1,0 +1,8 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT { ?s ?p ?o . }
+WHERE {
+  ?s ?p ?o .
+  ?o owl:deprecated true .
+  FILTER(?p != owl:deprecated)
+}

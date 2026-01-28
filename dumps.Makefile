@@ -56,7 +56,7 @@ ifndef UNIQUE_FACETS_ANNOTATION
 endif
 
 # The default target that generates all necessary OWL files.
-all: checkenv print_pdb_external_onts print_query_outputs remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl pdb_csvs pdb_sideloads
+all: checkenv print_pdb_external_onts print_query_outputs remove_embargoed_data $(FINAL_DUMPS_DIR)/owlery.owl $(FINAL_DUMPS_DIR)/solr.json $(FINAL_DUMPS_DIR)/pdb.owl $(FINAL_DUMPS_DIR)/obsolete_triples.ttl pdb_csvs pdb_sideloads
 
 # Declares a phony target to remove embargoed data.
 .PHONY: remove_embargoed_data
@@ -168,6 +168,10 @@ $(FINAL_DUMPS_DIR)/pdb.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DU
 # Generates the owlery.owl file, which is used for other purposes.
 $(FINAL_DUMPS_DIR)/owlery.owl: $(patsubst %, $(RAW_DUMPS_DIR)/construct_%.owl, $(DUMPS_OWLERY)) $(RAW_DUMPS_DIR)/constructReasoned_merged.owl $(SIDE_LOADING_ONTS)
 	$(call log, $@, $(ROBOT) merge $(patsubst %, -i %, $^) filter --axioms "logical" --preserve-structure true annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/owlery.owl" -o $@ $(STDOUT_FILTER))
+
+# Generates the obsolete triples TTL file for curator review.
+$(FINAL_DUMPS_DIR)/obsolete_triples.ttl: $(RAW_DUMPS_DIR)/obsolete_triples.ttl
+	$(call log, $@, cp $< $@)
 
 # Generates the side loading CSV files for the PDB
 pdb_sideloads: $(SIDE_LOADING_ONTS) | $(CSV_IMPORTS)
