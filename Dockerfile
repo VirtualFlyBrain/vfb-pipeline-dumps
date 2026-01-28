@@ -15,7 +15,7 @@ ENV CORES=4
 
 ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 
-RUN pip3 install wheel requests psycopg2 pandas base36 PyYAML
+RUN pip3 install wheel requests psycopg2 pandas base36 PyYAML rdflib
 
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
@@ -24,7 +24,7 @@ RUN mkdir $WORKSPACE
 
 ###### ROBOT ######
 ENV ROBOT v1.8.3
-ENV ROBOT_ARGS -Xmx20G
+ENV ROBOT_ARGS -Xmx20G -Djava.util.concurrent.ForkJoinPool.common.parallelism=1
 ARG ROBOT_JAR=https://github.com/ontodev/robot/releases/download/$ROBOT/robot.jar
 ENV ROBOT_JAR ${ROBOT_JAR}
 RUN wget $ROBOT_JAR -O $WORKSPACE/robot.jar && \
