@@ -71,12 +71,12 @@ $(RAW_DUMPS_DIR)/%.ttl:
 
 # This target constructs an OWL file from the TTL file specified in the prerequisite and adds an ontology IRI, then converts it to the OWL format.
 $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
-	$(call log, $@, $(ROBOT) merge -i $< annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/$*.owl" convert -f owl -o $@ $(STDOUT_FILTER))
+	$(call log, $@, $(ROBOT) merge -i $< annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/$*.owl" convert -f rdfxml -o $@ $(STDOUT_FILTER))
 
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
 # reduces the ontology, annotates it, and saves it to disk.
 $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
-	$(call log, $@, $(ROBOT) merge -i $< reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural relax reduce --reasoner ELK annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" convert -f owl -o $@ $(STDOUT_FILTER))
+	$(call log, $@, $(ROBOT) merge -i $< reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural relax reduce --reasoner ELK annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" convert -f rdfxml -o $@ $(STDOUT_FILTER))
 
 # Infers annotations and relations for the virtual fly brain ontology using the ROBOT inference engine.
 $(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml

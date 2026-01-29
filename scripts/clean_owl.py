@@ -10,16 +10,7 @@ from rdflib import Graph, RDF, URIRef, BNode
 def clean_owl(input_file, output_file):
     g = Graph()
     print(f"Loading {input_file}...")
-    try:
-        g.parse(input_file, format='xml')  # Assuming OWL/XML; adjust if Turtle/NT
-    except Exception as e:
-        print(f"Error parsing {input_file}: {e}")
-        with open(input_file, 'r') as f:
-            lines = f.readlines()[:10]
-            print("First 10 lines of the file:")
-            for i, line in enumerate(lines, 1):
-                print(f"{i}: {line.rstrip()}")
-        raise
+    g.parse(input_file, format='xml')  # Assuming OWL/XML; adjust if Turtle/NT
 
     invalid_count = 0
     for s, p, o in list(g.triples((None, RDF.type, None))):
