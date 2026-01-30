@@ -1,6 +1,7 @@
 PREFIX : <http://virtualflybrain.org#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 CONSTRUCT { ?x ?p ?y . }
 
-WHERE {?x ?p ?y  .}
+WHERE { ?x ?p ?y . FILTER( ?p != rdf:type || !isBlank(?y) ) }
 
