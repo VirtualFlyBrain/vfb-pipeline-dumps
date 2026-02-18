@@ -24,7 +24,7 @@ RUN mkdir $WORKSPACE
 
 ###### ROBOT ######
 ENV ROBOT v1.8.3
-ENV ROBOT_ARGS -Xmx100G -Djava.util.concurrent.ForkJoinPool.common.parallelism=1
+ENV ROBOT_ARGS -Xmx20G -Djava.util.concurrent.ForkJoinPool.common.parallelism=1
 ARG ROBOT_JAR=https://github.com/ontodev/robot/releases/download/$ROBOT/robot.jar
 ENV ROBOT_JAR ${ROBOT_JAR}
 RUN wget $ROBOT_JAR -O $WORKSPACE/robot.jar && \
