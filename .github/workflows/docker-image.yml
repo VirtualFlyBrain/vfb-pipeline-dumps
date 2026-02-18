@@ -22,12 +22,11 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USER }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     - name: Build and push
-      if: github.event_name == 'push'
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         file: ./Dockerfile
-        push: true
-        tags: virtualflybrain/vfb-pipeline-dumps:${GITHUB_REF#refs/heads/}
+        push: ${{ github.event_name == 'push' }}
+        tags: ${{ github.event_name == 'push' && format('virtualflybrain/vfb-pipeline-dumps:{0}', github.ref_name) || format('virtualflybrain/vfb-pipeline-dumps:pr-{0}', github.event.number) }}
 
     
