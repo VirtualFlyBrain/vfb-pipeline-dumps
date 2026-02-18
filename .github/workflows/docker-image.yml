@@ -14,13 +14,14 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
-    - run: docker build . --file Dockerfile --tag vfb-pipeline-dumps:${GITHUB_REF#refs/heads/}
-    - name: Dockerize
-      if: success()
-      uses: manusa/actions-publish-docker@v1.1.2
+      uses: actions/checkout@v4
+    - name: Build and push
+      uses: docker/build-push-action@v5
       with:
-        name: virtualflybrain/vfb-pipeline-dumps
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: virtualflybrain/vfb-pipeline-dumps:${GITHUB_REF#refs/heads/}
         username: ${{ secrets.DOCKER_HUB_USER }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
