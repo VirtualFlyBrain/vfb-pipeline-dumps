@@ -61,7 +61,7 @@ ENV OWL2NEO4J_JAR ${OWL2NEO4J_JAR}
 RUN wget $OWL2NEO4J_JAR -O $WORKSPACE/scripts/owl2neo4jcsv.jar && \
     chmod +x $WORKSPACE/scripts/owl2neo4jcsv.jar
 
-ENV INFER_ANNOTATE_VERSION 0.0.1-PRE
+ENV INFER_ANNOTATE_VERSION v0.0.1
 ARG INFER_ANNOTATE_JAR=https://github.com/VirtualFlyBrain/vfb_expression_annotator/releases/download/$INFER_ANNOTATE_VERSION/infer-annotate.jar
 ENV INFER_ANNOTATE_JAR ${INFER_ANNOTATE_JAR}
 RUN wget $INFER_ANNOTATE_JAR -O $WORKSPACE/scripts/infer-annotate.jar && \
