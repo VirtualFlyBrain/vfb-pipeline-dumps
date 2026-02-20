@@ -84,7 +84,7 @@ $(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DU
 
 # Infers unique facets for the virtual fly brain ontology using the ROBOT inference engine.
 $(RAW_DUMPS_DIR)/unique_facets.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml
-	$(call log, $@, java -jar $(SCRIPTS_DIR)/infer-annotate.jar $^ $(UNIQUE_FACETS_ANNOTATION) $@ true)
+	$(call log, $@, java $(ROBOT_ARGS) -jar $(SCRIPTS_DIR)/infer-annotate.jar $^ $(UNIQUE_FACETS_ANNOTATION) $@ true)
 
 # Downloads the VFB configuration file and saves it to disk.
 $(RAW_DUMPS_DIR)/vfb-config.yaml:
