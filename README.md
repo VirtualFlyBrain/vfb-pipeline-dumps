@@ -76,7 +76,7 @@ Output is written to the container's `/out` volume:
    | `dumps/pdb.owl` + `dumps/csv_imports/` | **PDB** — the production Neo4j graph the site queries | `DUMPS_PDB` (`all preferred_roots deprecation_label has_image`) + reasoned + inferred; `owl2neo4jcsv.jar` converts `pdb.owl` to Neo4j bulk-import CSVs |
 
 5. **Side-loads.** Large connectivity / expression datasets
-   (`PDB_EXTERNAL_ONTS = connectome_*.owl VFB_scRNAseq_exp_*.owl VFB_EPseq_exp_*.owl`) are **not**
+   (`PDB_EXTERNAL_ONTS = connectome_*.owl region_connectivity_*.owl VFB_scRNAseq_exp_*.owl VFB_EPseq_exp_*.owl`) are **not**
    merged into the main graph. The `pdb_sideloads` target converts each into **edge-only** Neo4j CSVs
    (`owl2neo4jcsv.jar … only_edges`), keeping the huge connectome/expression data out of the
    reasoning and merge steps.
