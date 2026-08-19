@@ -14,6 +14,28 @@ define log
     @echo $1 ended: `date +%s` >> $(LOG_FILE)
 endef
 
+# When `robot reason` fails it prints a single line -- "The ontology is inconsistent"
+# or a count of unsatisfiable classes -- and nothing about which axioms caused it, so a
+# 2.5 hour build ends with no way to act on the result. This runs `robot explain` over
+# the same input, and only when reason has already failed, so a green build pays nothing
+# for it. Both modes are tried because the two failures need different ones: an ABox
+# contradiction is only visible to --mode inconsistency, unsatisfiable classes only to
+# --mode unsatisfiability. `-u root` names the classes that cause the rest rather
+# than sampling consequences.
+#
+# The `|| true` on each explain is deliberate and scoped to the diagnostic: a failure to
+# explain must never replace or mask the real error. The caller adds a trailing `false`
+# so the build still fails.
+EXPLAIN_ALL = echo "===== robot explain: inconsistency (ABox) =====" ; \
+	$(ROBOT) explain -i $(RAW_DUMPS_DIR)/all.ttl --reasoner ELK --mode inconsistency \
+		-m 5 -e $(RAW_DUMPS_DIR)/explain_inconsistency.md || true ; \
+	cat $(RAW_DUMPS_DIR)/explain_inconsistency.md 2>/dev/null || true ; \
+	echo "===== robot explain: unsatisfiable classes (root causes) =====" ; \
+	$(ROBOT) explain -i $(RAW_DUMPS_DIR)/all.ttl --reasoner ELK --mode unsatisfiability \
+		-u root -m 1 -e $(RAW_DUMPS_DIR)/explain_unsatisfiability.md || true ; \
+	cat $(RAW_DUMPS_DIR)/explain_unsatisfiability.md 2>/dev/null || true ; \
+	echo "===== end robot explain ====="
+
 # Suggest parallel execution in comments
 # To speed up the build process, you can run make with parallel jobs: `make -j 4 all`
 
@@ -76,7 +98,7 @@ $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
 # reduces the ontology, annotates it, and saves it to disk.
 $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
-	$(call log, $@, $(ROBOT) merge -i $< reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural relax reduce --reasoner ELK annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" convert -f owl -o $@ $(STDOUT_FILTER))
+	$(call log, $@, $(ROBOT) merge -i $< reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural relax reduce --reasoner ELK annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" convert -f owl -o $@ $(STDOUT_FILTER) || { $(EXPLAIN_ALL) ; false ; })
 
 # Infers annotations and relations for the virtual fly brain ontology using the ROBOT inference engine.
 $(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml
