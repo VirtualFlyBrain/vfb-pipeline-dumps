@@ -95,10 +95,27 @@ $(RAW_DUMPS_DIR)/%.ttl:
 $(RAW_DUMPS_DIR)/construct_%.owl: $(RAW_DUMPS_DIR)/%.ttl
 	$(call log, $@, $(ROBOT) merge -i $< annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/$*.owl" convert -f owl -o $@ $(STDOUT_FILTER))
 
+# TEMPORARY (VFB2#457): BFO's continuant/occurrent disjointness --
+# DisjointClasses(BFO:0000002, BFO:0000003) and the two GCI forms
+# DisjointClasses(BFO:0000002, part_of some BFO:0000003) / mirror -- is tripped
+# by 'Clustering has_part Assay' in the scRNAseq data (Assay is an occurrent,
+# Clustering ends up inferred continuant, so 'Assay part_of Clustering' hits the
+# GCI form). vfb-scRNAseq-ontology's schema can't change without touching the
+# TSV-building scripts it's about to be migrated away from anyway
+# (VirtualFlyBrain/vfb-scRNAseq), so as a stopgap we strip these three axioms
+# from the merged all.ttl right before reasoning, wherever they came from
+# (fbbt.owl and vfbext.owl both carry a copy via their own BFO/RO import
+# closure). Remove this step once the scRNAseq migration lands the real fix.
+# Verified with robot merge+reason (ELK): a scRNAseq dataset file that
+# reproduces "The ontology is inconsistent" on its own reasons cleanly once
+# this remove step runs first.
+#
 # Generates an OWL file from multiple TTL files, infers annotations and relations,
 # reduces the ontology, annotates it, and saves it to disk.
 $(RAW_DUMPS_DIR)/construct_all.owl: $(RAW_DUMPS_DIR)/all.ttl
-	$(call log, $@, $(ROBOT) merge -i $< reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural relax reduce --reasoner ELK annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" convert -f owl -o $@ $(STDOUT_FILTER) || { $(EXPLAIN_ALL) ; false ; })
+	$(call log, $@, $(ROBOT) merge -i $< \
+		remove --term BFO:0000002 --term BFO:0000003 --axioms "DisjointClasses" --preserve-structure false \
+		reason --reasoner ELK --axiom-generators "SubClass EquivalentClass ClassAssertion" --exclude-tautologies structural relax reduce --reasoner ELK annotate --ontology-iri "http://virtualflybrain.org/data/VFB/OWL/raw/all.owl" convert -f owl -o $@ $(STDOUT_FILTER) || { $(EXPLAIN_ALL) ; false ; })
 
 # Infers annotations and relations for the virtual fly brain ontology using the ROBOT inference engine.
 $(RAW_DUMPS_DIR)/inferred_annotation.owl: $(FINAL_DUMPS_DIR)/owlery.owl $(RAW_DUMPS_DIR)/vfb-config.yaml
