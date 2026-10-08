@@ -17,6 +17,10 @@ ENV PATH "/opt/VFB/:/opt/VFB/shacl/bin:$PATH"
 
 RUN pip3 install wheel requests psycopg2 pandas base36 PyYAML rdflib
 
+# python:3.6 is Debian 11 (bullseye); its security updates now live only on archive.debian.org
+RUN sed -i -e 's|http://deb.debian.org/debian-security|http://archive.debian.org/debian-security|g' \
+           -e 's|http://security.debian.org/debian-security|http://archive.debian.org/debian-security|g' /etc/apt/sources.list
+
 RUN apt-get -qq update || apt-get -qq update && \
 apt-get -qq -y install git curl wget default-jdk pigz maven libpq-dev python-dev tree gawk
 
